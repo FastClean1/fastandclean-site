@@ -1,151 +1,112 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import "./styles.css";
 
-const SERVICES = [
+const services = [
   {
     id: "trial",
     name: "Trial Cleaning",
     description:
       "Try our professional quality with a 1-hour trial clean. Perfect for first-time customers.",
-    price: "From £40",
     duration: "1h service",
+    price: 40,
+    icon: "⭐"
   },
   {
     id: "house",
     name: "House Cleaning",
     description:
       "Regular or deep cleaning for flats and houses, including kitchens, bathrooms and living areas.",
-    price: "From £95",
     duration: "3h service",
+    price: 95,
+    icon: "🏠"
   },
   {
     id: "office",
     name: "Office Cleaning",
     description:
       "Professional cleaning for offices, clinics and retail spaces with flexible schedules.",
-    price: "From £120",
     duration: "2h service",
+    price: 120,
+    icon: "🏢"
   },
   {
     id: "garden",
     name: "Garden Maintenance",
     description:
       "Lawn mowing, hedge trimming, weeding and seasonal tidy-ups to keep your garden sharp.",
-    price: "From £65",
     duration: "2h service",
+    price: 65,
+    icon: "🌿"
   },
   {
     id: "landscaping",
     name: "Landscaping",
     description:
-      "Planting, design and outdoor improvements to refresh and upgrade your property.",
-    price: "From £160",
+      "Planting, design, patio and outdoor improvements to refresh your property.",
     duration: "4h service",
+    price: 160,
+    icon: "🌱"
   },
   {
     id: "handyman",
     name: "Handyman Repairs",
     description:
-      "Minor repairs, furniture assembly, painting and small jobs around your home.",
-    price: "From £80",
+      "Minor repairs, furniture assembly, small painting jobs and general home fixes.",
     duration: "2h service",
-  },
+    price: 80,
+    icon: "🛠️"
+  }
 ];
 
-function scrollToId(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const y = el.getBoundingClientRect().top + window.scrollY - 90;
-  window.scrollTo({ top: y, behavior: "smooth" });
-}
-
-export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleBookClick = (service) => {
-    const url = `/book?service=${encodeURIComponent(
-      service.name
-    )}&price=${encodeURIComponent(service.price.replace("From £", ""))}`;
-    window.location.href = url;
-  };
-
+function App() {
   return (
     <div className="page">
-      {/* TOP BAR */}
-      <header className="top-bar">
-        <div className="brand">Fast &amp; Clean Ltd</div>
+      {/* HEADER */}
+      <header className="header">
+        <div className="header-left">
+          <span className="logo-text">Fast &amp; Clean Ltd</span>
+        </div>
 
-        <div className="top-right-menu">
-          <button
-            className="menu-btn"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            Menu ▾
-          </button>
-          {menuOpen && (
-            <div className="menu-dropdown">
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  scrollToId("services");
-                }}
-              >
-                Services
-              </button>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  window.location.href = "/book";
-                }}
-              >
-                Book Online
-              </button>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  scrollToId("contact");
-                }}
-              >
-                Contact
-              </button>
+        {/* Dropdown menu on the right */}
+        <div className="header-right">
+          <div className="dropdown">
+            <button className="dropdown-toggle">Menu ▾</button>
+            <div className="dropdown-menu">
+              <a href="#services">Services</a>
+              <Link to="/book">Book Online</Link>
+              <a href="#contact">Contact</a>
             </div>
-          )}
+          </div>
         </div>
       </header>
 
       <main>
         {/* HERO */}
         <section className="hero">
-          <div className="hero-label">Professional</div>
+          <p className="hero-eyebrow">Professional</p>
           <h1 className="hero-title">Home Services</h1>
 
-          {/* Testo nero centrato */}
-          <p className="hero-text">
-            Expert cleaning, gardening and handyman services for your home or
-            business across Cambridge and London.
-            <br />
-            Book online, pay securely, and enjoy peace of mind.
+          {/* SOLO questa linea nera: centrata */}
+          <p className="hero-subtitle">
+            Expert cleaning, gardening, and handyman services for your home and
+            business across Cambridge and London. Book online, pay securely,
+            and enjoy peace of mind.
           </p>
 
           <div className="hero-badges">
-            <span>✅ Licensed &amp; Insured</span>
+            <span>✔ Licensed &amp; Insured</span>
             <span>⚡ Same Day Service (subject to availability)</span>
             <span>⭐ Satisfaction Guaranteed</span>
           </div>
 
           <div className="hero-actions">
-            <button
-              className="primary-btn"
-              onClick={() => scrollToId("services")}
-            >
+            <Link to="/book" className="btn-primary">
               Book Service Now
-            </button>
-            <button
-              className="ghost-btn"
-              onClick={() => scrollToId("services")}
-            >
+            </Link>
+            <a href="#services" className="btn-outline">
               View Services
-            </button>
+            </a>
           </div>
 
           <div className="hero-stats">
@@ -166,36 +127,37 @@ export default function App() {
 
         {/* SERVICES */}
         <section id="services" className="services-section">
-          {/* Titolo + testo blu più centrati */}
-          <div className="section-header">
-            <h2>Our Professional Services</h2>
-            <p>
-              From deep cleaning to garden maintenance and handyman repairs, we
-              provide clear packages with upfront pricing.
-            </p>
-            <p className="booking-system">
-              <strong>New Booking System:</strong> Two convenient time slots per
-              day. Morning: 9:00 AM – 2:00 PM · Afternoon: 3:00 PM – 7:00 PM.
-              One booking per slot to ensure quality.
-            </p>
+          {/* TUTTO questo blocco più centrale */}
+          <h2 className="section-title">Our Professional Services</h2>
+          <p className="section-subtitle">
+            From deep cleaning to garden maintenance and handyman repairs,
+            we provide clear packages with upfront pricing.
+          </p>
+
+          <div className="booking-note">
+            <strong>New Booking System:</strong> Two convenient time slots per
+            day. Morning: 9:00 AM – 2:00 PM · Afternoon: 3:00 PM – 7:00 PM.
+            One booking per slot to ensure quality.
           </div>
 
-          <div className="service-grid">
-            {SERVICES.map((service) => (
+          <div className="services-grid">
+            {services.map((service) => (
               <div key={service.id} className="service-card">
-                <div className="service-icon">★</div>
-                <h3>{service.name}</h3>
+                <div className="service-icon">{service.icon}</div>
+                <h3 className="service-name">{service.name}</h3>
                 <p className="service-desc">{service.description}</p>
                 <div className="service-meta">
                   <span>{service.duration}</span>
-                  <span className="price">{service.price}</span>
+                  <span className="service-price">From £{service.price}</span>
                 </div>
-                <button
-                  className="service-btn"
-                  onClick={() => handleBookClick(service)}
+                <Link
+                  to={`/book?service=${encodeURIComponent(
+                    service.name
+                  )}&price=${service.price}`}
+                  className="btn-card"
                 >
                   Book This Service
-                </button>
+                </Link>
               </div>
             ))}
           </div>
@@ -203,72 +165,88 @@ export default function App() {
 
         {/* CONTACT */}
         <section id="contact" className="contact-section">
-          <div className="contact-left">
-            <h2>Get In Touch</h2>
-            <p>
-              Ready to book a service or have questions? We’re here to help with
-              all your cleaning, gardening and handyman needs.
-            </p>
+          <h2 className="section-title">Get In Touch</h2>
+          <p className="section-subtitle">
+            Ready to book a service or have questions? We&apos;re here to help
+            with all your cleaning, gardening and handyman needs.
+          </p>
 
-            <div className="contact-list">
-              <div>
-                <strong>Phone:</strong> 07918646714
-              </div>
-              <div>
-                <strong>Email:</strong> fastandcleanoffice@gmail.com
-              </div>
-              <div>
-                <strong>Service Area:</strong> Cambridge &amp; London
-              </div>
-              <div>
-                <strong>Hours:</strong> Mon–Sat 8:00–18:00, Sun 10:00–16:00
-              </div>
-            </div>
+          <div className="contact-grid">
+            <div className="contact-details">
+              <h3>Contact Information</h3>
+              <ul>
+                <li>
+                  <strong>Phone:</strong>{" "}
+                  <a href="tel:+447918646714">07918 646714</a>
+                </li>
+                <li>
+                  <strong>Email:</strong>{" "}
+                  <a href="mailto:fastandcleanoffice@gmail.com">
+                    fastandcleanoffice@gmail.com
+                  </a>
+                </li>
+                <li>
+                  <strong>Service Area:</strong> Cambridge &amp; London
+                </li>
+                <li>
+                  <strong>Hours:</strong> Mon–Sat 8:00–18:00, Sun 10:00–16:00
+                </li>
+              </ul>
 
-            <div className="testimonials">
               <h3>What Our Customers Say</h3>
-              <p>
-                “Excellent service! The online booking system made it super
-                easy.”
+              <p className="testimonial">
+                “The online booking system made everything super easy, and the
+                team delivered an excellent clean.”
               </p>
-              <p>
-                “Great attention to detail and very professional.
-                Highly recommended.”
+              <p className="testimonial">
+                “Great attention to detail and very reliable. Highly
+                recommended.”
               </p>
             </div>
-          </div>
 
-          <div className="contact-right">
-            <h3>Send Us a Message</h3>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert(
-                  "Thank you! Your message has been received. We will get back to you shortly."
-                );
-              }}
-            >
-              <input type="text" placeholder="Full Name" required />
-              <input type="email" placeholder="Email Address" required />
-              <input type="tel" placeholder="Phone Number" required />
-              <input
-                type="text"
-                placeholder="Service Area (Cambridge / London / Other)"
-                required
-              />
-              <textarea
-                placeholder="Tell us about your service needs or any questions…"
-                rows="4"
-                required
-              />
-              <button type="submit" className="primary-btn full-width">
-                Send Message
-              </button>
-            </form>
+            <div className="contact-form">
+              <h3>Send Us a Message</h3>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert(
+                    "Thank you for your message. We will get back to you within 24 hours."
+                  );
+                }}
+              >
+                <div className="form-row">
+                  <input type="text" placeholder="Full Name" required />
+                  <input type="email" placeholder="Email Address" required />
+                </div>
+                <div className="form-row">
+                  <input type="tel" placeholder="Phone Number" required />
+                  <input
+                    type="text"
+                    placeholder="Service Area (Cambridge / London / Other)"
+                    required
+                  />
+                </div>
+                <textarea
+                  rows="4"
+                  placeholder="Tell us about your service needs or any questions..."
+                  required
+                />
+                <button type="submit" className="btn-primary full-width">
+                  Send Message
+                </button>
+              </form>
+            </div>
           </div>
         </section>
       </main>
 
+      {/* FOOTER */}
       <footer className="footer">
         © 2025 Fast &amp; Clean Ltd. Based in Cambridge &amp; London — Professional
         Home Services.
+      </footer>
+    </div>
+  );
+}
+
+export default App;
