@@ -1,233 +1,195 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./book.css";
-import { useLocation } from "react-router-dom";
 
-const SERVICES = [
-  { id: "trial", name: "Trial Cleaning", price: 40, duration: "1h service" },
-  { id: "house", name: "House Cleaning", price: 95, duration: "3h service" },
-  { id: "office", name: "Office Cleaning", price: 120, duration: "2h service" },
-  { id: "garden", name: "Garden Maintenance", price: 65, duration: "2h service" },
-  { id: "landscaping", name: "Landscaping", price: 160, duration: "4h service" },
-  { id: "handyman", name: "Handyman Repairs", price: 80, duration: "2h service" },
-];
-
-function useQuery() {
-  const { search } = useLocation();
-  return React.useMemo(() => new URLSearchParams(search), [search]);
-}
-
-export default function Book() {
-  const query = useQuery();
-
-  const queryService = query.get("service");
-  const queryPrice = query.get("price");
-
-  const initialService =
-    SERVICES.find((s) => s.name === queryService) ||
-    (queryService && queryPrice
-      ? {
-          id: "custom",
-          name: queryService,
-          price: Number(queryPrice),
-          duration: "",
-        }
-      : SERVICES[0]);
-
-  const [service, setService] = useState(initialService);
+function Book() {
+  const [selectedService, setSelectedService] = useState("");
+  const [selectedPrice, setSelectedPrice] = useState("");
   const [date, setDate] = useState("");
-  const [slot, setSlot] = useState("");
+  const [timeSlot, setTimeSlot] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (queryService) {
-      const found =
-        SERVICES.find((s) => s.name === queryService) ||
-        (queryPrice
-          ? {
-              id: "custom",
-              name: queryService,
-              price: Number(queryPrice),
-              duration: "",
-            }
-          : null);
-      if (found) setService(found);
-    }
-  }, [queryService, queryPrice]);
+  const services = [
+    { name: "Trial Cleaning", price: 40 },
+    { name: "House Cleaning", price: 95 },
+    { name: "Office Cleaning", price: 120 },
+    { name: "Garden Maintenance", price: 65 },
+    { name: "Landscaping", price: 160 },
+    { name: "Handyman Repairs", price: 80 },
+  ];
 
-  const handleServiceChange = (e) => {
-    const selectedName = e.target.value;
-    const found = SERVICES.find((s) => s.name === selectedName);
-    if (found) setService(found);
-  };
+  const timeSlots = [
+    "Morning: 9:00 AM – 2:00 PM",
+    "Afternoon: 3:00 PM – 7:00 PM",
+  ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    if (!service || !date || !slot || !fullName || !phone || !email || !address) {
-      alert("Please fill in all required fields before proceeding to payment.");
+    if (!selectedService || !selectedPrice || !fullName || !email || !phone || !address) {
+      setError("Please fill in all required fields.");
+      setLoading(false);
       return;
     }
 
-    // Qui collegherai Stripe Checkout. Per ora mostriamo solo un riepilogo chiaro.
-    const summary = `
-Service: ${service.name} (£${service.price})
-Date: ${date}
-Time slot: ${slot}
-Name: ${fullName}
-Phone: ${phone}
-Email: ${email}
-Address: ${address}
-Notes: ${notes || "-"}
-    `.trim();
+    try {
+      const response = await fetch("/.netlify/functions/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service: `${selectedService} - £${selectedPrice}`,
+          price: selectedPrice,
+          fullName,
+          email,
+          phone,
+          date,
+          timeSlot,
+          address,
+          notes,
+        }),
+      });
 
-    alert(
-      summary +
-        "\n\nOn the next step this page will redirect to a secure Stripe checkout (quando lo configuriamo)."
-    );
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url; // Manda il cliente su Stripe
+      } else {
+        setError("Something went wrong, please try again later.");
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setError("Payment error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="container">
-      <h1>Book Your Service</h1>
-      <p
-        style={{
-          textAlign: "center",
-          marginBottom: "25px",
-          color: "#555",
-          maxWidth: "620px",
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        Choose your preferred service, date and time slot. Only one booking per slot is available
-        to guarantee top quality.
+    <div className="book-container">
+      <h2>Book Your Service</h2>
+      <p>
+        Choose your preferred service, date and time slot. Only one booking per slot is available to guarantee top quality.
       </p>
 
-      <form onSubmit={handleSubmit}>
-        {/* Service */}
-        <div>
-          <label>Select Service *</label>
+      <form onSubmit={handleSubmit} className="book-form">
+        <label>
+          Select Service *
           <select
-            value={service?.name || ""}
-            onChange={handleServiceChange}
+            value={selectedService}
+            onChange={(e) => {
+              const selected = services.find((s) => s.name === e.target.value);
+              setSelectedService(selected.name);
+              setSelectedPrice(selected.price);
+            }}
             required
           >
-            {SERVICES.map((s) => (
-              <option key={s.id} value={s.name}>
-                {s.name} - £{s.price}
+            <option value="">Select a service</option>
+            {services.map((s, index) => (
+              <option key={index} value={s.name}>
+                {s.name} – £{s.price}
               </option>
             ))}
           </select>
-        </div>
+        </label>
 
-        {/* Date */}
-        <div>
-          <label>Preferred Date *</label>
+        <label>
+          Preferred Date *
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
           />
-        </div>
+        </label>
 
-        {/* Time Slot */}
-        <div>
-          <label>Preferred Time Slot *</label>
-          <select
-            value={slot}
-            onChange={(e) => setSlot(e.target.value)}
-            required
-          >
+        <label>
+          Preferred Time Slot *
+          <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} required>
             <option value="">Select a time slot</option>
-            <option value="Morning 9:00 AM - 2:00 PM">
-              Morning 9:00 AM - 2:00 PM
-            </option>
-            <option value="Afternoon 3:00 PM - 7:00 PM">
-              Afternoon 3:00 PM - 7:00 PM
-            </option>
+            {timeSlots.map((slot, index) => (
+              <option key={index} value={slot}>
+                {slot}
+              </option>
+            ))}
           </select>
-        </div>
+        </label>
 
-        {/* Full Name */}
-        <div>
-          <label>Full Name *</label>
+        <label>
+          Full Name *
           <input
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
           />
-        </div>
+        </label>
 
-        {/* Email */}
-        <div>
-          <label>Email Address *</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label>Phone Number *</label>
+        <label>
+          Phone Number *
           <input
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
           />
-        </div>
+        </label>
 
-        {/* Address */}
-        <div style={{ gridColumn: "span 2" }}>
-          <label>Service Address *</label>
+        <label>
+          Email Address *
           <input
-            type="text"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </label>
+
+        <label>
+          Service Address *
+          <textarea
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
           />
+        </label>
+
+        <label>
+          Additional Notes (Optional)
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </label>
+
+        <div className="booking-summary">
+          <h3>Booking Summary</h3>
+          <p>
+            <strong>Service:</strong>{" "}
+            {selectedService ? `${selectedService} – £${selectedPrice}` : "Not selected"}
+          </p>
+          <p>
+            <strong>Price:</strong> {selectedPrice ? `£${selectedPrice}` : "–"}
+          </p>
+          <p>
+            <strong>Date:</strong> {date || "Not selected"}
+          </p>
+          <p>
+            <strong>Time Slot:</strong> {timeSlot || "Not selected"}
+          </p>
         </div>
 
-        {/* Notes */}
-        <textarea
-          placeholder="Additional notes (access details, parking info, special requests)…"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
+        {error && <p className="error-message">{error}</p>}
 
-        {/* Submit */}
-        <button type="submit">Proceed to Payment</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Processing..." : "Proceed to Payment"}
+        </button>
       </form>
-
-      <div className="booking-summary">
-        <h3>Booking Summary</h3>
-        <p>
-          <strong>Service:</strong>{" "}
-          {service ? `${service.name} — £${service.price}` : "-"}
-        </p>
-        <p>
-          <strong>Date:</strong> {date || "Select a date"}
-        </p>
-        <p>
-          <strong>Time Slot:</strong> {slot || "Select a time slot"}
-        </p>
-        <p>
-          <strong>Duration:</strong> {service?.duration || "-"}
-        </p>
-        <p style={{ fontSize: "13px", color: "#666" }}>
-          On the next step you’ll be redirected to a secure Stripe payment page to
-          complete your booking (lo aggiungiamo dopo).
-        </p>
-      </div>
     </div>
   );
 }
+
+export default Book;
