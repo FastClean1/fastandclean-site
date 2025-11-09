@@ -1,80 +1,136 @@
-body {
-  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-  background-color: #f8f9fa;
-  margin: 0;
-  padding: 0;
-  color: #333;
-}
+/* ====== book.css ====== */
 
-.container {
-  max-width: 900px;
-  margin: 40px auto;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.book-container {
+  max-width: 800px;
+  margin: 80px auto;
   padding: 40px;
-}
-
-h1 {
-  font-size: 1.8rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   text-align: center;
-  margin-bottom: 20px;
+  font-family: "Inter", sans-serif;
+  color: #222;
 }
 
-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.book-container h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #0a2540;
+  font-weight: 700;
+}
+
+.book-container p {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 35px;
+}
+
+.book-form {
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+  text-align: left;
 }
 
-form label {
+.book-form label {
+  display: flex;
+  flex-direction: column;
   font-weight: 600;
-  margin-bottom: 5px;
-  display: block;
+  color: #333;
+  font-size: 0.95rem;
 }
 
-form input,
-form select,
-form textarea {
-  width: 100%;
-  padding: 10px;
+.book-form input,
+.book-form select,
+.book-form textarea {
+  margin-top: 6px;
+  padding: 12px;
+  font-size: 1rem;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
+  border-radius: 8px;
+  transition: 0.2s ease;
+  background-color: #f9f9f9;
+}
+
+.book-form input:focus,
+.book-form select:focus,
+.book-form textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  background-color: #fff;
 }
 
 textarea {
-  grid-column: span 2;
-  resize: none;
   min-height: 80px;
+  resize: vertical;
 }
 
-button {
-  grid-column: span 2;
-  background-color: #007bff;
-  color: white;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  padding: 12px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
+/* Booking summary box */
 .booking-summary {
-  margin-top: 30px;
-  background: #f3f7fb;
+  background: #f4f7ff;
+  border: 1px solid #dce4ff;
+  border-radius: 10px;
   padding: 20px;
-  border-radius: 8px;
-  border-left: 4px solid #007bff;
+  margin-top: 20px;
 }
 
 .booking-summary h3 {
-  margin-top: 0;
-  color: #007bff;
+  margin-bottom: 10px;
+  color: #0a2540;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.booking-summary p {
+  margin: 5px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Error message */
+.error-message {
+  color: #d9534f;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Button styling */
+button[type="submit"] {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .book-container {
+    padding: 25px;
+  }
+
+  .book-container h2 {
+    font-size: 1.7rem;
+  }
+
+  button[type="submit"] {
+    font-size: 1rem;
+    padding: 12px;
+  }
 }
