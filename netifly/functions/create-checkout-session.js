@@ -1,12 +1,8 @@
-// netlify/functions/create-checkout-session.js
+import Stripe from "stripe";
 
-const Stripe = require("stripe");
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Usa la chiave segreta che hai messo su Netlify come STRIPE_SECRET_KEY
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-
-exports.handler = async (event) => {
-  // Consente solo richieste POST
+export async function handler(event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -18,8 +14,8 @@ exports.handler = async (event) => {
     const data = JSON.parse(event.body || "{}");
 
     const {
-      service,     // es: "Office Cleaning - £120"
-      price,       // es: 120
+      service,
+      price,
       fullName,
       email,
       phone,
@@ -29,15 +25,17 @@ exports.handler = async (event) => {
       notes,
     } = data;
 
-    // Controlli minimi
-    if (!service || !price) {
+    if (!service || !price || !fullName || !email) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing service or price" }),
+        body: JSON.stringify({ error: "Missing required fields" }),
       };
     }
 
-    // Crea la sessione di pagamento Stripe
+    const origin =
+      event.headers.origin ||
+      `https://${event.headers.host}`;
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -45,48 +43,41 @@ exports.handler = async (event) => {
         {
           price_data: {
             currency: "gbp",
+            unit_amount: Math.round(Number(price) * 100),
             product_data: {
               name: service,
-              description:
-                "Fast & Clean Ltd - Online booking. Includes selected service details.",
+              description: `Booking for ${fullName}${
+                date ? ` on ${date}` : ""
+              }${timeSlot ? ` at ${timeSlot}` : ""}`,
             },
-            unit_amount: Math.round(Number(price) * 100), // £ -> pence
           },
           quantity: 1,
         },
       ],
-      // URL del tuo sito su Netlify
-      success_url: `${
-        process.env.URL || "https://fastandcleanltd.netlify.app"
-      }/?booking=success`,
-      cancel_url: `${
-        process.env.URL || "https://fastandcleanltd.netlify.app"
-      }/book`,
+      success_url: `${origin}/?payment=success`,
+      cancel_url: `${origin}/book?payment=cancelled`,
       metadata: {
-        fullName: fullName || "",
-        email: email || "",
-        phone: phone || "",
-        date: date || "",
-        timeSlot: timeSlot || "",
-        address: address || "",
-        notes: notes || "",
+        service,
+        price,
+        fullName,
+        email,
+        phone,
+        date,
+        timeSlot,
+        address,
+        notes,
       },
     });
 
-    // Ritorna l'URL dove mandare il cliente
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: session.url }),
     };
   } catch (error) {
     console.error("Stripe error:", error);
-
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Unable to create checkout session",
-      }),
+      body: JSON.stringify({ error: "Stripe session error" }),
     };
   }
-};
+}
