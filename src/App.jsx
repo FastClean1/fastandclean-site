@@ -1,81 +1,114 @@
 import React from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import Book from "./Book";
 import "./styles.css";
 
-function getPaymentStatus() {
-  if (typeof window === "undefined") return null;
-  const params = new URLSearchParams(window.location.search);
-  const value = params.get("payment");
-  if (value === "success") return "success";
-  if (value === "cancelled") return "cancelled";
-  return null;
-}
+function HomePage() {
+  const navigate = useNavigate();
 
-export default function App() {
-  const paymentStatus = getPaymentStatus();
+  const services = [
+    {
+      name: "Trial Cleaning",
+      description:
+        "1-hour trial clean to experience our professional quality. Ideal for new customers.",
+      duration: "1h service",
+      priceFrom: 40,
+    },
+    {
+      name: "House Cleaning",
+      description:
+        "Regular or deep cleaning for flats and houses, including kitchens, bathrooms and living areas.",
+      duration: "3h service",
+      priceFrom: 95,
+    },
+    {
+      name: "Office Cleaning",
+      description:
+        "Professional cleaning for offices, clinics and retail spaces with flexible schedules.",
+      duration: "2h service",
+      priceFrom: 120,
+    },
+    {
+      name: "Garden Maintenance",
+      description:
+        "Lawn mowing, hedge trimming, weeding and tidy-ups to keep your garden sharp all year.",
+      duration: "2h service",
+      priceFrom: 65,
+    },
+    {
+      name: "Landscaping",
+      description:
+        "Planting, design and outdoor improvements to refresh and upgrade your property.",
+      duration: "4h service",
+      priceFrom: 160,
+    },
+    {
+      name: "Handyman Repairs",
+      description:
+        "Minor repairs, furniture assembly, painting and general home & office fixes.",
+      duration: "2h service",
+      priceFrom: 80,
+    },
+  ];
 
-  const handleScrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+  const handleBookClick = (service) => {
+    navigate(
+      `/book?service=${encodeURIComponent(
+        service.name
+      )}&price=${service.priceFrom}`
+    );
   };
 
   return (
-    <div className="page-root">
-      {/* Banner pagamento */}
-      {paymentStatus === "success" && (
-        <div className="payment-banner success">
-          ✅ Payment received. Your booking has been submitted. We’ll contact you to confirm details.
-        </div>
-      )}
-      {paymentStatus === "cancelled" && (
-        <div className="payment-banner cancel">
-          ⚠️ Payment was cancelled. You can try again or contact us for assistance.
-        </div>
-      )}
-
-      {/* NAVBAR */}
-      <header className="navbar">
+    <div className="page">
+      {/* HEADER */}
+      <header className="top-bar">
         <div className="logo">Fast &amp; Clean Ltd</div>
+
         <div className="nav-dropdown">
-          <button className="nav-dropdown-btn">Menu ▾</button>
+          <button className="nav-dropdown-toggle">Menu ▾</button>
           <div className="nav-dropdown-menu">
-            <button onClick={() => handleScrollTo("services")}>Services</button>
-            <button onClick={() => (window.location.href = "/book")}>
-              Book Online
-            </button>
-            <button onClick={() => handleScrollTo("contact")}>Contact</button>
+            <a href="#services">Services</a>
+            <a href="#book-online">Book Online</a>
+            <a href="#contact">Contact</a>
           </div>
         </div>
       </header>
 
       {/* HERO */}
       <section className="hero">
-        <p className="hero-kicker">Professional</p>
-        <h1 className="hero-title">
-          Home Services
-        </h1>
+        <h1>Home Services</h1>
         <p className="hero-subtitle">
-          Expert cleaning, gardening and handyman services for your home and business
-          across Cambridge &amp; London. Book online, pay securely, and enjoy peace of mind.
+          Expert cleaning, gardening and handyman services for your home or
+          business across Cambridge &amp; London.
+          <br />
+          Book online, pay securely, and enjoy peace of mind.
         </p>
+
         <div className="hero-badges">
-          <span>✅ Licensed &amp; Insured</span>
+          <span>✔ Licensed &amp; Insured</span>
           <span>⚡ Same Day Service (subject to availability)</span>
           <span>⭐ Satisfaction Guaranteed</span>
         </div>
+
         <div className="hero-actions">
           <button
             className="btn-primary"
-            onClick={() => (window.location.href = "/book")}
+            onClick={() =>
+              navigate(
+                `/book?service=${encodeURIComponent(
+                  "House Cleaning"
+                )}&price=95`
+              )
+            }
           >
             Book Service Now
           </button>
-          <button
-            className="btn-ghost"
-            onClick={() => handleScrollTo("services")}
-          >
+          <a href="#services" className="btn-outline">
             View Services
-          </button>
+          </a>
         </div>
+
         <div className="hero-stats">
           <div>
             <div className="stat-number">500+</div>
@@ -95,145 +128,38 @@ export default function App() {
       {/* SERVICES */}
       <section id="services" className="services-section">
         <h2>Our Professional Services</h2>
-        <p className="services-subtitle">
-          From deep cleaning to garden maintenance and handyman repairs, we provide
-          clear packages with upfront pricing.
+        <p className="section-subtitle">
+          From deep cleaning to garden maintenance and handyman repairs, we
+          provide clear packages with upfront pricing.
         </p>
 
-        <div className="booking-banner">
-          <strong>New Booking System:</strong> We now offer two convenient time slots per day.
-          <br />
-          <span>Morning: 9:00 AM – 2:00 PM &nbsp; | &nbsp; Afternoon: 3:00 PM – 7:00 PM</span>
-          <br />
-          <small>One booking per slot to ensure dedicated service quality.</small>
+        <div className="booking-system">
+          <strong>New Booking System:</strong> We now offer two convenient time
+          slots per day.{" "}
+          <span className="highlight">
+            Morning: 9:00 AM – 2:00 PM · Afternoon: 3:00 PM – 7:00 PM
+          </span>{" "}
+          One booking per slot to ensure dedicated service quality.
         </div>
 
         <div className="services-grid">
-          {/* 1 */}
-          <div className="service-card">
-            <div className="service-icon">★</div>
-            <h3>Trial Cleaning</h3>
-            <p>
-              1-hour trial clean to experience our professional quality. Ideal for new customers.
-            </p>
-            <div className="service-meta">
-              <span>1h service</span>
-              <span>From £40</span>
+          {services.map((service) => (
+            <div key={service.name} className="service-card">
+              <div className="service-icon">★</div>
+              <h3>{service.name}</h3>
+              <p className="service-description">{service.description}</p>
+              <div className="service-meta">
+                <span>{service.duration}</span>
+                <span className="price">From £{service.priceFrom}</span>
+              </div>
+              <button
+                className="btn-service"
+                onClick={() => handleBookClick(service)}
+              >
+                Book This Service
+              </button>
             </div>
-            <button
-              className="btn-card"
-              onClick={() =>
-                (window.location.href = "/book?service=Trial%20Cleaning&price=40")
-              }
-            >
-              Book This Service
-            </button>
-          </div>
-
-          {/* 2 */}
-          <div className="service-card">
-            <div className="service-icon">🏠</div>
-            <h3>House Cleaning</h3>
-            <p>
-              Regular or deep cleaning for flats and houses, including kitchens, bathrooms and living areas.
-            </p>
-            <div className="service-meta">
-              <span>3h service</span>
-              <span>From £95</span>
-            </div>
-            <button
-              className="btn-card"
-              onClick={() =>
-                (window.location.href = "/book?service=House%20Cleaning&price=95")
-              }
-            >
-              Book This Service
-            </button>
-          </div>
-
-          {/* 3 */}
-          <div className="service-card">
-            <div className="service-icon">🏢</div>
-            <h3>Office Cleaning</h3>
-            <p>
-              Professional cleaning for offices, clinics and retail spaces with flexible schedules.
-            </p>
-            <div className="service-meta">
-              <span>2h service</span>
-              <span>From £120</span>
-            </div>
-            <button
-              className="btn-card"
-              onClick={() =>
-                (window.location.href = "/book?service=Office%20Cleaning&price=120")
-              }
-            >
-              Book This Service
-            </button>
-          </div>
-
-          {/* 4 */}
-          <div className="service-card">
-            <div className="service-icon">🌿</div>
-            <h3>Garden Maintenance</h3>
-            <p>
-              Lawn mowing, hedge trimming, weeding and tidy-ups to keep your garden sharp.
-            </p>
-            <div className="service-meta">
-              <span>2h service</span>
-              <span>From £65</span>
-            </div>
-            <button
-              className="btn-card"
-              onClick={() =>
-                (window.location.href = "/book?service=Garden%20Maintenance&price=65")
-              }
-            >
-              Book This Service
-            </button>
-          </div>
-
-          {/* 5 */}
-          <div className="service-card">
-            <div className="service-icon">🌳</div>
-            <h3>Landscaping</h3>
-            <p>
-              Planting, design and outdoor improvements to refresh and upgrade your property.
-            </p>
-            <div className="service-meta">
-              <span>4h service</span>
-              <span>From £160</span>
-            </div>
-            <button
-              className="btn-card"
-              onClick={() =>
-                (window.location.href = "/book?service=Landscaping&price=160")
-              }
-            >
-              Book This Service
-            </button>
-          </div>
-
-          {/* 6 */}
-          <div className="service-card">
-            <div className="service-icon">🛠</div>
-            <h3>Handyman Repairs</h3>
-            <p>
-              Furniture assembly, minor repairs, painting and general home &amp; office fixes.
-            </p>
-            <div className="service-meta">
-              <span>2h service</span>
-              <span>From £80</span>
-            </div>
-            <button
-              className="btn-card"
-              onClick={() =>
-                (window.location.href = "/book?service=Handyman%20Repairs&price=80")
-              }
-            >
-              Book This Service
-            </button>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -242,35 +168,61 @@ export default function App() {
         <div className="contact-left">
           <h2>Get In Touch</h2>
           <p>
-            Ready to book a service or have questions? We're here to help with all your cleaning,
-            gardening and handyman needs.
+            Ready to book a service or have questions? We’re here to help with
+            all your cleaning, gardening and handyman needs.
           </p>
+
+          <h3>Contact Information</h3>
           <ul className="contact-list">
-            <li><strong>Phone:</strong> 07918 646714</li>
-            <li><strong>Email:</strong> fastandcleanoffice@gmail.com</li>
-            <li><strong>Service Area:</strong> Cambridge &amp; London</li>
-            <li><strong>Hours:</strong> Mon–Sat 8:00–18:00, Sun 10:00–16:00</li>
+            <li>
+              <strong>Phone:</strong>{" "}
+              <a href="tel:07918646714">07918 646714</a>
+            </li>
+            <li>
+              <strong>Email:</strong>{" "}
+              <a href="mailto:fastandcleanoffice@gmail.com">
+                fastandcleanoffice@gmail.com
+              </a>
+            </li>
+            <li>
+              <strong>Service Area:</strong> Cambridge &amp; London
+            </li>
+            <li>
+              <strong>Hours:</strong> Mon–Sat 8:00–18:00, Sun 10:00–16:00
+            </li>
           </ul>
+
+          <h3>What Our Customers Say</h3>
+          <p className="testimonial">
+            “The online booking system made everything super easy, and the team
+            delivered an excellent clean.”
+          </p>
+          <p className="testimonial">
+            “Great attention to detail and very reliable. Highly recommended.”
+          </p>
         </div>
 
         <div className="contact-right">
           <h3>Send Us a Message</h3>
           <form
+            className="contact-form"
             onSubmit={(e) => {
               e.preventDefault();
-              alert("Thank you! We'll get back to you shortly.");
+              alert(
+                "Thank you! For now this form is a demo. We can collegarlo ad email o backend dopo."
+              );
             }}
           >
-            <div className="contact-grid">
-              <input type="text" placeholder="Full Name" required />
-              <input type="email" placeholder="Email Address" required />
-            </div>
-            <div className="contact-grid">
-              <input type="tel" placeholder="Phone Number" />
-              <input type="text" placeholder="Service Area (Cambridge / London)" />
-            </div>
-            <textarea placeholder="Tell us about your service needs or questions..." />
-            <button type="submit" className="btn-primary full">
+            <input type="text" placeholder="Full Name" required />
+            <input type="email" placeholder="Email Address" required />
+            <input type="tel" placeholder="Phone Number" required />
+            <input
+              type="text"
+              placeholder="Service Area (Cambridge / London / Other)"
+              required
+            />
+            <textarea placeholder="Tell us about your service needs..." />
+            <button type="submit" className="btn-primary">
               Send Message
             </button>
           </form>
@@ -279,8 +231,18 @@ export default function App() {
 
       {/* FOOTER */}
       <footer className="footer">
-        © 2025 Fast &amp; Clean Ltd. Based in Cambridge &amp; London – Professional Home Services.
+        © 2025 Fast &amp; Clean Ltd. Based in Cambridge &amp; London —
+        Professional Home Services.
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/book" element={<Book />} />
+    </Routes>
   );
 }
