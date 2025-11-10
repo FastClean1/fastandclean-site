@@ -1,8 +1,14 @@
-import Stripe from "stripe";
+// netlify/functions/create-checkout-session.js
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function handler(event) {
+/**
+ * Netlify Function: create-checkout-session
+ * Called from /book page to create a Stripe Checkout Session
+ */
+exports.handler = async (event) => {
+  // Allow only POST
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -25,16 +31,14 @@ export async function handler(event) {
       notes,
     } = data;
 
-    if (!service || !price || !fullName || !email) {
+    if (!service || !price || !fullName || !email || !phone || !date || !timeSlot || !address) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: "Missing required fields" }),
       };
     }
 
-    const origin =
-      event.headers.origin ||
-      `https://${event.headers.host}`;
+    const amount = Math.round(Number(price) * 100); // £ → pence
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -43,30 +47,26 @@ export async function handler(event) {
         {
           price_data: {
             currency: "gbp",
-            unit_amount: Math.round(Number(price) * 100),
+            unit_amount: amount,
             product_data: {
               name: service,
-              description: `Booking for ${fullName}${
-                date ? ` on ${date}` : ""
-              }${timeSlot ? ` at ${timeSlot}` : ""}`,
+              description: `Date: ${date}, Time: ${timeSlot}`,
             },
           },
           quantity: 1,
         },
       ],
-      success_url: `${origin}/?payment=success`,
-      cancel_url: `${origin}/book?payment=cancelled`,
+      customer_email: email,
       metadata: {
-        service,
-        price,
         fullName,
-        email,
         phone,
         date,
         timeSlot,
         address,
-        notes,
+        notes: notes || "",
       },
+      success_url: `${process.env.URL || "https://fastandcleanltd.netlify.app"}/?payment=success`,
+      cancel_url: `${process.env.URL || "https://fastandcleanltd.netlify.app"}/book?payment=cancel`,
     });
 
     return {
@@ -75,9 +75,13 @@ export async function handler(event) {
     };
   } catch (error) {
     console.error("Stripe error:", error);
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Stripe session error" }),
+      body: JSON.stringify({
+        error: "Unable to create checkout session",
+        details: error.message,
+      }),
     };
   }
-}
+};
