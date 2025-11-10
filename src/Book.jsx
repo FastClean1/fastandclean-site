@@ -2,9 +2,9 @@ import React, { useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./book.css";
 
-// PAYMENT LINKS STRIPE (GIÀ COMPILATI)
+// PAYMENT LINKS STRIPE (AGGIORNATI)
 const PAYMENT_LINKS = {
-  "Trial Cleaning - £40": "https://buy.stripe.com/4gM4gAa0maozfD92Sc7N605",
+  "Trial Cleaning - £1": "https://buy.stripe.com/3cI3cwb4qaozez5akE7N606",
   "House Cleaning - £95": "https://buy.stripe.com/eVq14o6Oa9kv8aH2Sc7N604",
   "Office Cleaning - £120": "https://buy.stripe.com/14A7sM6Oa1S38aHdwQ7N603",
   "Garden Maintenance - £65": "https://buy.stripe.com/6oU4gAgoK9kvaiP8cw7N602",
@@ -22,7 +22,7 @@ export default function Book() {
   const navigate = useNavigate();
 
   const initialService = query.get("service") || "Trial Cleaning";
-  const initialPrice = query.get("price") || "40";
+  const initialPrice = query.get("price") || "1";
 
   const [selectedService, setSelectedService] = useState(initialService);
   const [selectedPrice, setSelectedPrice] = useState(initialPrice);
