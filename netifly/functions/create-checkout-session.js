@@ -1,14 +1,10 @@
-// netlify/functions/create-checkout-session.js
-
 const Stripe = require("stripe");
+
+// Usa la chiave segreta presa da Netlify (STRIPE_SECRET_KEY)
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-/**
- * Netlify Function: create-checkout-session
- * Called from /book page to create a Stripe Checkout Session
- */
 exports.handler = async (event) => {
-  // Allow only POST
+  // Solo POST
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -31,14 +27,23 @@ exports.handler = async (event) => {
       notes,
     } = data;
 
-    if (!service || !price || !fullName || !email || !phone || !date || !timeSlot || !address) {
+    if (!service || !price || !fullName || !email) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing required fields" }),
+        body: JSON.stringify({ error: "Missing required booking data" }),
       };
     }
 
-    const amount = Math.round(Number(price) * 100); // £ → pence
+    const description = `
+Service: ${service}
+Name: ${fullName}
+Email: ${email}
+Phone: ${phone || "-"}
+Date: ${date || "-"}
+Time: ${timeSlot || "-"}
+Address: ${address || "-"}
+Notes: ${notes || "-"}
+    `.trim();
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -47,41 +52,30 @@ exports.handler = async (event) => {
         {
           price_data: {
             currency: "gbp",
-            unit_amount: amount,
             product_data: {
               name: service,
-              description: `Date: ${date}, Time: ${timeSlot}`,
+              description,
             },
+            unit_amount: Math.round(Number(price) * 100),
           },
           quantity: 1,
         },
       ],
-      customer_email: email,
-      metadata: {
-        fullName,
-        phone,
-        date,
-        timeSlot,
-        address,
-        notes: notes || "",
-      },
-      success_url: `${process.env.URL || "https://fastandcleanltd.netlify.app"}/?payment=success`,
-      cancel_url: `${process.env.URL || "https://fastandcleanltd.netlify.app"}/book?payment=cancel`,
+      success_url:
+        "https://fastandcleanltd.netlify.app/?payment=success",
+      cancel_url:
+        "https://fastandcleanltd.netlify.app/book?payment=cancelled",
     });
 
     return {
       statusCode: 200,
       body: JSON.stringify({ url: session.url }),
     };
-  } catch (error) {
-    console.error("Stripe error:", error);
-
+  } catch (err) {
+    console.error("Stripe error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Unable to create checkout session",
-        details: error.message,
-      }),
+      body: JSON.stringify({ error: "Stripe session error" }),
     };
   }
 };
