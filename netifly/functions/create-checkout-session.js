@@ -1,20 +1,32 @@
 const Stripe = require("stripe");
 
-// Usa la chiave segreta presa da Netlify (STRIPE_SECRET_KEY)
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-
 exports.handler = async (event) => {
-  // Solo POST
-  if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: "Method not allowed" }),
-    };
-  }
-
   try {
-    const data = JSON.parse(event.body || "{}");
+    // Solo POST
+    if (event.httpMethod !== "POST") {
+      return {
+        statusCode: 405,
+        body: "Method not allowed",
+      };
+    }
 
+    // Controllo chiave Stripe
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      console.error("Missing STRIPE_SECRET_KEY");
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: true,
+          message: "Stripe key missing on server",
+        }),
+      };
+    }
+
+    const stripe = Stripe(secretKey);
+
+    // Dati dal frontend
+    const data = JSON.parse(event.body || "{}");
     const {
       service,
       price,
@@ -27,24 +39,17 @@ exports.handler = async (event) => {
       notes,
     } = data;
 
-    if (!service || !price || !fullName || !email) {
+    if (!service || !price || !fullName || !email || !phone || !date || !timeSlot || !address) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing required booking data" }),
+        body: JSON.stringify({
+          error: true,
+          message: "Missing required booking fields",
+        }),
       };
     }
 
-    const description = `
-Service: ${service}
-Name: ${fullName}
-Email: ${email}
-Phone: ${phone || "-"}
-Date: ${date || "-"}
-Time: ${timeSlot || "-"}
-Address: ${address || "-"}
-Notes: ${notes || "-"}
-    `.trim();
-
+    // Crea sessione Checkout
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -54,17 +59,23 @@ Notes: ${notes || "-"}
             currency: "gbp",
             product_data: {
               name: service,
-              description,
             },
             unit_amount: Math.round(Number(price) * 100),
           },
           quantity: 1,
         },
       ],
-      success_url:
-        "https://fastandcleanltd.netlify.app/?payment=success",
-      cancel_url:
-        "https://fastandcleanltd.netlify.app/book?payment=cancelled",
+      metadata: {
+        fullName,
+        email,
+        phone,
+        date,
+        timeSlot,
+        address,
+        notes: notes || "",
+      },
+      success_url: "https://fastandcleanltd.netlify.app/?success=true",
+      cancel_url: "https://fastandcleanltd.netlify.app/book?canceled=true",
     });
 
     return {
@@ -75,7 +86,10 @@ Notes: ${notes || "-"}
     console.error("Stripe error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Stripe session error" }),
+      body: JSON.stringify({
+        error: true,
+        message: err.message || "Internal server error",
+      }),
     };
   }
 };
