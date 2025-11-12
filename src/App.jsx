@@ -2,8 +2,9 @@ import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import Home from "./Home";
 import Book from "./Book";
+import "./styles.css";
 
-// catalogo servizi + link Stripe (quelli che mi hai passato)
+// Catalogo servizi (mostrato in Home tramite props)
 const services = [
   {
     name: "Trial Cleaning",
@@ -11,7 +12,7 @@ const services = [
       "1-hour trial clean to experience our professional quality. Perfect for first-time customers.",
     duration: "1h service",
     priceFrom: "From £1",
-    stripeLink: "https://buy.stripe.com/3cI3cwb4qaozez5akE7N606",
+    price: 1,
   },
   {
     name: "House Cleaning",
@@ -19,7 +20,7 @@ const services = [
       "Regular or deep cleaning for flats and houses, including kitchens, bathrooms and living areas.",
     duration: "3h service",
     priceFrom: "From £95",
-    stripeLink: "https://buy.stripe.com/eVq14o6Oa9kv8aH2Sc7N604",
+    price: 95,
   },
   {
     name: "Office Cleaning",
@@ -27,7 +28,7 @@ const services = [
       "Professional cleaning for offices, clinics and retail spaces with flexible schedules.",
     duration: "2h service",
     priceFrom: "From £120",
-    stripeLink: "https://buy.stripe.com/14A7sM6Oa1S38aHdwQ7N603",
+    price: 120,
   },
   {
     name: "Garden Maintenance",
@@ -35,15 +36,15 @@ const services = [
       "Lawn mowing, hedge trimming, weeding and tidy-ups to keep your garden sharp all year.",
     duration: "2h service",
     priceFrom: "From £65",
-    stripeLink: "https://buy.stripe.com/6oU4gAgoK9kvaiP8cw7N602",
+    price: 65,
   },
   {
     name: "Landscaping",
     description:
-      "Planting, design, patio and outdoor improvements to refresh and upgrade your property.",
+      "Planting, design and outdoor improvements to refresh and upgrade your property.",
     duration: "4h service",
     priceFrom: "From £160",
-    stripeLink: "https://buy.stripe.com/eVqcN6dcy7cnaiPgJ27N601",
+    price: 160,
   },
   {
     name: "Handyman Repairs",
@@ -51,39 +52,46 @@ const services = [
       "Minor repairs, furniture assembly, painting and general home & office fixes.",
     duration: "2h service",
     priceFrom: "From £80",
-    stripeLink: "https://buy.stripe.com/3cIfZib4qdALbmTfEY7N600",
+    price: 80,
   },
 ];
 
 export default function App() {
   return (
     <>
-      {/* header semplice e sicuro */}
+      {/* HEADER */}
       <header className="site-header">
-        <div className="container row between">
-          <Link to="/" className="brand">
-            Fast & Clean Ltd
-          </Link>
+        <div className="container nav-wrap">
+          <Link className="brand" to="/">Fast &amp; Clean Ltd</Link>
 
-          <nav className="nav">
-            <Link to="/#services" className="nav-link">Services</Link>
-            <Link to="/book" className="nav-link">Book Online</Link>
-            <a className="nav-link" href="#contact">Contact</a>
-          </nav>
+          {/* Menu a tendina a destra */}
+          <details className="menu">
+            <summary>Menu</summary>
+            <nav className="menu-list">
+              <Link to="/">Services</Link>
+              <Link to="/book">Book Online</Link>
+              <a href="#contact">Contact</a>
+            </nav>
+          </details>
         </div>
       </header>
 
+      {/* ROUTES */}
       <main>
         <Routes>
+          {/* Passo i servizi a Home: lì renderizzi cards + bottoni */}
           <Route path="/" element={<Home services={services} />} />
           <Route path="/book" element={<Book />} />
-          {/* fallback per rotte sconosciute */}
+          {/* fallback */}
           <Route path="*" element={<Home services={services} />} />
         </Routes>
       </main>
 
+      {/* FOOTER */}
       <footer className="site-footer">
-        © {new Date().getFullYear()} Fast & Clean Ltd. Based in Cambridge & London – Professional Home Services.
+        <div className="container">
+          © {new Date().getFullYear()} Fast &amp; Clean Ltd — Based in Cambridge &amp; London · Professional Home Services.
+        </div>
       </footer>
     </>
   );
