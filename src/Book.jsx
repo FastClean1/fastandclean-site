@@ -7,7 +7,7 @@ import "./book.css"; // Assicurati che esista (anche vuoto va bene per ora)
  */
 
 // EmailJS
-const EMAILJS_SERVICE_ID = "service_xxxxxx"; // <<<<<< SOSTITUISCI con il tuo Service ID
+const EMAILJS_SERVICE_ID = "service_fastandclean"; // <<<<<< SOSTITUISCI con il tuo Service ID
 const EMAILJS_TEMPLATE_ID = "template_1528593"; // (già fornito)
 const COMPANY_EMAIL = "fastandcleanoffice@gmail.com"; // dove vuoi ricevere le notifiche
 
