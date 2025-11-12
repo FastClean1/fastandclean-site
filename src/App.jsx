@@ -1,3 +1,10 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Home from "./Home";
+import Book from "./Book";
+import "./styles.css";
+
+// Tutti i servizi con descrizione, prezzo e link Stripe
 const services = [
   {
     name: "Trial Cleaning",
@@ -48,3 +55,30 @@ const services = [
     stripeLink: "https://buy.stripe.com/3cIfZib4qdALbmTfEY7N600",
   },
 ];
+
+function App() {
+  return (
+    <Router>
+      <header className="navbar">
+        <Link to="/" className="logo">
+          Fast & Clean Ltd
+        </Link>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/book">Book</Link>
+        </nav>
+      </header>
+
+      <Routes>
+        <Route path="/" element={<Home services={services} />} />
+        <Route path="/book" element={<Book />} />
+      </Routes>
+
+      <footer className="footer">
+        <p>© {new Date().getFullYear()} Fast & Clean Ltd. All rights reserved.</p>
+      </footer>
+    </Router>
+  );
+}
+
+export default App;
