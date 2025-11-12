@@ -1,9 +1,9 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Home from "./Home";
 import Book from "./Book";
-import "./styles.css";
 
+// catalogo servizi + link Stripe (quelli che mi hai passato)
 const services = [
   {
     name: "Trial Cleaning",
@@ -40,7 +40,7 @@ const services = [
   {
     name: "Landscaping",
     description:
-      "Planting, design and outdoor improvements to refresh and upgrade your property.",
+      "Planting, design, patio and outdoor improvements to refresh and upgrade your property.",
     duration: "4h service",
     priceFrom: "From £160",
     stripeLink: "https://buy.stripe.com/eVqcN6dcy7cnaiPgJ27N601",
@@ -48,36 +48,43 @@ const services = [
   {
     name: "Handyman Repairs",
     description:
-      "Furniture assembly, minor repairs, painting and general home & office fixes.",
+      "Minor repairs, furniture assembly, painting and general home & office fixes.",
     duration: "2h service",
     priceFrom: "From £80",
     stripeLink: "https://buy.stripe.com/3cIfZib4qdALbmTfEY7N600",
   },
 ];
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <header className="navbar">
-        <Link to="/" className="logo">
-          Fast & Clean Ltd
-        </Link>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/book">Book</Link>
-        </nav>
+    <>
+      {/* header semplice e sicuro */}
+      <header className="site-header">
+        <div className="container row between">
+          <Link to="/" className="brand">
+            Fast & Clean Ltd
+          </Link>
+
+          <nav className="nav">
+            <Link to="/#services" className="nav-link">Services</Link>
+            <Link to="/book" className="nav-link">Book Online</Link>
+            <a className="nav-link" href="#contact">Contact</a>
+          </nav>
+        </div>
       </header>
 
-      <Routes>
-        <Route path="/" element={<Home services={services} />} />
-        <Route path="/book" element={<Book />} />
-      </Routes>
+      <main>
+        <Routes>
+          <Route path="/" element={<Home services={services} />} />
+          <Route path="/book" element={<Book />} />
+          {/* fallback per rotte sconosciute */}
+          <Route path="*" element={<Home services={services} />} />
+        </Routes>
+      </main>
 
-      <footer className="footer">
-        <p>© {new Date().getFullYear()} Fast & Clean Ltd. All rights reserved.</p>
+      <footer className="site-footer">
+        © {new Date().getFullYear()} Fast & Clean Ltd. Based in Cambridge & London – Professional Home Services.
       </footer>
-    </Router>
+    </>
   );
 }
-
-export default App;
