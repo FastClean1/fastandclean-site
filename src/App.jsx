@@ -4,7 +4,6 @@ import Home from "./Home";
 import Book from "./Book";
 import "./styles.css";
 
-// Tutti i servizi con descrizione, prezzo e link Stripe
 const services = [
   {
     name: "Trial Cleaning",
