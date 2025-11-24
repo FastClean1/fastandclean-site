@@ -1,330 +1,207 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-/**
- * Book.jsx
- * - Raccoglie dati cliente + appuntamento
- * - Manda 2 email con EmailJS (azienda + cliente)
- * - Poi redirect su Stripe Payment Link del servizio scelto
- */
-
 export default function Book() {
   const location = useLocation();
 
-  // ---- 1) Servizi + Stripe links + prezzi
   const services = useMemo(
     () => [
       {
         name: "Trial Cleaning",
+        price: 1,
         duration: "1h service",
-        priceFrom: 1,
         stripeLink: "https://buy.stripe.com/3cI3cwb4qaozez5akE7N606",
-        description:
-          "1-hour trial clean to experience our professional quality. Perfect for first-time customers.",
       },
       {
         name: "House Cleaning",
+        price: 95,
         duration: "3h service",
-        priceFrom: 95,
         stripeLink: "https://buy.stripe.com/eVq14o6Oa9kv8aH2Sc7N604",
-        description:
-          "Regular or deep cleaning for flats and houses, including kitchens, bathrooms and living areas.",
       },
       {
         name: "Office Cleaning",
+        price: 120,
         duration: "2h service",
-        priceFrom: 120,
         stripeLink: "https://buy.stripe.com/14A7sM6Oa1S38aHdwQ7N603",
-        description:
-          "Professional cleaning for offices, clinics and retail spaces with flexible schedules.",
       },
       {
         name: "Garden Maintenance",
+        price: 65,
         duration: "2h service",
-        priceFrom: 65,
         stripeLink: "https://buy.stripe.com/6oU4gAgoK9kvaiP8cw7N602",
-        description:
-          "Lawn mowing, hedge trimming, weeding and tidy-ups to keep your garden sharp all year.",
       },
       {
         name: "Landscaping",
+        price: 160,
         duration: "4h service",
-        priceFrom: 160,
         stripeLink: "https://buy.stripe.com/eVqcN6dcy7cnaiPgJ27N601",
-        description:
-          "Planting, design and outdoor improvements to refresh and upgrade your property.",
       },
       {
         name: "Handyman Repairs",
+        price: 80,
         duration: "2h service",
-        priceFrom: 80,
         stripeLink: "https://buy.stripe.com/3cIfZib4qdALbmTfEY7N600",
-        description:
-          "Minor repairs, furniture assembly, painting and general home & office fixes.",
       },
     ],
     []
   );
 
-  const defaultServiceName = services[0].name;
+  const params = new URLSearchParams(location.search);
+  const preselected = params.get("service");
 
-  // ---- 2) Stato form
-  const [selectedService, setSelectedService] = useState(defaultServiceName);
-  const [selectedPrice, setSelectedPrice] = useState(
-    services.find((s) => s.name === defaultServiceName)?.priceFrom || 0
+  const [selectedService, setSelectedService] = useState(
+    preselected || services[0].name
   );
+  const selectedObj = services.find((s) => s.name === selectedService);
 
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [date, setDate] = useState("");
-  const [timeSlot, setTimeSlot] = useState("Morning: 9:00 AM – 2:00 PM");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState("");
+  const [timeSlot, setTimeSlot] = useState("Morning: 9:00 AM – 2:00 PM");
+
   const [error, setError] = useState("");
+  const [sending, setSending] = useState(false);
 
-  // ---- 3) Pre-selezione servizio se arrivi da Home con state
   useEffect(() => {
-    const preselected = location.state?.serviceName;
-    if (preselected && services.some((s) => s.name === preselected)) {
-      setSelectedService(preselected);
-      const srv = services.find((s) => s.name === preselected);
-      setSelectedPrice(srv.priceFrom);
-    }
-  }, [location.state, services]);
+    if (preselected) setSelectedService(preselected);
+  }, [preselected]);
 
-  // ---- 4) Quando cambio servizio → aggiorno prezzo di default
-  useEffect(() => {
-    const srv = services.find((s) => s.name === selectedService);
-    if (srv) setSelectedPrice(srv.priceFrom);
-  }, [selectedService, services]);
+  const COMPANY_EMAIL = "fastandcleanoffice@gmail.com";
 
-  const currentService = services.find((s) => s.name === selectedService);
-
-  // ---- 5) EmailJS helpers
+  // EmailJS settings
+  const EMAILJS_PUBLIC_KEY = "5_Cvw67jXHmkH-d_u";
   const EMAILJS_SERVICE_ID = "service_fastandclean";
   const EMAILJS_TEMPLATE_ID = "template_1528593";
-  const EMAILJS_PUBLIC_KEY = "5_Cvw67jXHmkH-d_u"; // tua public key
 
   const sendEmails = async () => {
     if (!window.emailjs) {
-      throw new Error("EmailJS non è caricato (manca CDN in index.html).");
+      throw new Error("EmailJS not loaded. Check index.html CDN.");
     }
 
     const templateParams = {
-      service: selectedService,
-      price: `£${selectedPrice}`,
+      full_name: fullName,
+      phone,
+      email, // customer email
+      customer_email: email,
+      service: selectedObj.name,
+      price: `£${selectedObj.price}`,
       booking_date: date,
       booking_time: timeSlot,
       address,
-      full_name: fullName,
-      phone,
-      email, // IMPORTANT: questo è l'email cliente
       notes,
     };
 
-    // 1) email al CLIENTE
+    // 1) email to company
     await window.emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      {
-        ...templateParams,
-        to_email: email, // alcuni template leggono {{to_email}}
-      },
+      { ...templateParams, email: COMPANY_EMAIL },
       EMAILJS_PUBLIC_KEY
     );
 
-    // 2) email all’AZIENDA
+    // 2) email to customer
     await window.emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      {
-        ...templateParams,
-        to_email: "fastandcleanoffice@gmail.com",
-      },
+      { ...templateParams, email },
       EMAILJS_PUBLIC_KEY
     );
   };
 
-  // ---- 6) Submit → manda email → redirect Stripe
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleProceed = async () => {
     setError("");
 
-    if (
-      !fullName ||
-      !email ||
-      !phone ||
-      !date ||
-      !timeSlot ||
-      !address ||
-      !selectedService
-    ) {
+    if (!date || !fullName || !email || !phone || !address) {
       setError("Please fill all required fields.");
       return;
     }
 
-    if (!currentService?.stripeLink) {
-      setError("Payment link not configured for this service.");
-      return;
-    }
-
     try {
-      setLoading(true);
-
+      setSending(true);
       await sendEmails();
-
-      // Redirect su Stripe Payment Link
-      window.location.href = currentService.stripeLink;
-    } catch (err) {
-      console.error(err);
+      window.location.href = selectedObj.stripeLink;
+    } catch (e) {
+      console.error(e);
       setError("There was a problem sending emails. Please try again.");
     } finally {
-      setLoading(false);
+      setSending(false);
     }
   };
 
   return (
-    <div className="page">
-      <section className="container book-wrap">
-        <h1 className="page-title">Book Your Service</h1>
-        <p className="page-subtitle">
-          Choose your preferred service, date and time slot. You’ll be redirected
-          to Stripe to complete payment.
-        </p>
+    <div className="booking-container">
+      <h1 className="booking-title">Book Your Service</h1>
+      <p className="section-subtitle" style={{ textAlign: "left" }}>
+        Choose your preferred service, date and time slot. You’ll be redirected to secure Stripe checkout to complete your booking.
+      </p>
 
-        <form className="book-form" onSubmit={handleSubmit}>
-          {/* Service */}
-          <label className="field">
-            <span>Select Service *</span>
-            <select
-              value={selectedService}
-              onChange={(e) => setSelectedService(e.target.value)}
-            >
-              {services.map((s) => (
-                <option key={s.name} value={s.name}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </label>
+      <div className="booking-form">
+        <label>Select Service *</label>
+        <select
+          value={selectedService}
+          onChange={(e) => setSelectedService(e.target.value)}
+        >
+          {services.map((s) => (
+            <option key={s.name} value={s.name}>
+              {s.name}
+            </option>
+          ))}
+        </select>
 
-          {/* Price */}
-          <label className="field">
-            <span>Price (£) *</span>
-            <input
-              type="number"
-              min="1"
-              step="1"
-              value={selectedPrice}
-              onChange={(e) => setSelectedPrice(Number(e.target.value))}
-            />
-            <small>Match this with your chosen package.</small>
-          </label>
+        <label>Price (£) *</label>
+        <input value={selectedObj.price} disabled />
 
-          {/* Date */}
-          <label className="field">
-            <span>Preferred Date *</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </label>
+        <label>Preferred Date *</label>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
 
-          {/* Time slot */}
-          <label className="field">
-            <span>Preferred Time Slot *</span>
-            <select
-              value={timeSlot}
-              onChange={(e) => setTimeSlot(e.target.value)}
-            >
-              <option>Morning: 9:00 AM – 2:00 PM</option>
-              <option>Afternoon: 3:00 PM – 7:00 PM</option>
-            </select>
-          </label>
+        <label>Preferred Time Slot *</label>
+        <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
+          <option>Morning: 9:00 AM – 2:00 PM</option>
+          <option>Afternoon: 3:00 PM – 7:00 PM</option>
+        </select>
 
-          {/* Name / phone */}
-          <div className="grid-2">
-            <label className="field">
-              <span>Full Name *</span>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your name"
-              />
-            </label>
-            <label className="field">
-              <span>Phone Number *</span>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="07..."
-              />
-            </label>
-          </div>
+        <label>Full Name *</label>
+        <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
 
-          {/* Email */}
-          <label className="field">
-            <span>Email Address *</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@email.com"
-            />
-          </label>
+        <label>Phone Number *</label>
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} />
 
-          {/* Address */}
-          <label className="field">
-            <span>Service Address *</span>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Street, city, postcode"
-            />
-          </label>
+        <label>Email Address *</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-          {/* Notes */}
-          <label className="field">
-            <span>Additional Notes (Optional)</span>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any special instructions..."
-              rows={3}
-            />
-          </label>
+        <label>Service Address *</label>
+        <input value={address} onChange={(e) => setAddress(e.target.value)} />
 
-          {/* Booking summary */}
-          <div className="summary-card">
-            <h3>Booking Summary</h3>
-            <p>
-              <strong>Service:</strong> {selectedService} — £{selectedPrice}
-            </p>
-            <p>
-              <strong>Date:</strong> {date || "—"}
-            </p>
-            <p>
-              <strong>Time Slot:</strong> {timeSlot || "—"}
-            </p>
-            <p>
-              <strong>Duration:</strong> {currentService?.duration || "—"}
-            </p>
-          </div>
+        <label>Additional Notes (Optional)</label>
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+      </div>
 
-          {error && <div className="error">{error}</div>}
+      <div className="booking-summary">
+        <h2 style={{ marginTop: 0 }}>Booking Summary</h2>
+        <p><strong>Service:</strong> {selectedObj.name} — £{selectedObj.price}</p>
+        <p><strong>Date:</strong> {date || "—"}</p>
+        <p><strong>Time Slot:</strong> {timeSlot}</p>
+        <p><strong>Duration:</strong> {selectedObj.duration}</p>
+      </div>
 
-          <button className="btn-primary" type="submit" disabled={loading}>
-            {loading ? "Processing..." : "Proceed to Payment"}
-          </button>
-        </form>
-      </section>
+      {error && <div className="booking-error">{error}</div>}
+
+      <button
+        className="btn-primary full-width"
+        onClick={handleProceed}
+        disabled={sending}
+        style={{ marginTop: 14 }}
+      >
+        {sending ? "Sending..." : "Proceed to Payment"}
+      </button>
     </div>
   );
 }
