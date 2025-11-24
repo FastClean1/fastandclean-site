@@ -246,11 +246,6 @@ main {
   color: #059669;
 }
 
-/* make the bottom button aligned */
-.service-card .btn-primary {
-  margin-top: 10px;
-}
-
 /* ===== Contact ===== */
 
 .contact-section {
