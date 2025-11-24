@@ -1,4 +1,4 @@
-/* ===== BOOKING PAGE ===== */
+/* ===== BOOKING PAGE ONLY ===== */
 
 .booking-container {
   max-width: 800px;
@@ -20,6 +20,7 @@
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 6px;
+  display: block;
 }
 
 .booking-form input,
@@ -31,6 +32,11 @@
   border: 1px solid #d1d5db;
   margin-bottom: 14px;
   font-size: 14px;
+  font-family: inherit;
+}
+
+.booking-form textarea {
+  min-height: 90px;
 }
 
 .booking-summary {
