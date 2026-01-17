@@ -1,11 +1,10 @@
 import React from "react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Home from "./Home.jsx";
+import Quote from "./Quote.jsx";
 import Book from "./Book.jsx";
 
 export default function App() {
-  const navigate = useNavigate();
-
   return (
     <>
       <header className="site-header">
@@ -13,44 +12,20 @@ export default function App() {
           <div className="logo">
             <Link to="/">Fast & Clean Ltd</Link>
           </div>
-
-          <div className="nav-menu">
-            <select
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v.startsWith("#")) {
-                  navigate("/");
-                  setTimeout(() => {
-                    const el = document.querySelector(v);
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }, 50);
-                } else {
-                  navigate(v);
-                }
-              }}
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Menu
-              </option>
-              <option value="/">Services</option>
-              <option value="/book">Book Online</option>
-              <option value="#contact">Contact</option>
-            </select>
-          </div>
         </div>
       </header>
 
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/quote" element={<Quote />} />
           <Route path="/book" element={<Book />} />
         </Routes>
       </main>
 
       <footer className="site-footer">
         <div className="container">
-          © {new Date().getFullYear()} Fast & Clean Ltd — Based in Cambridge & London · Professional Home Services.
+          © {new Date().getFullYear()} Fast & Clean Ltd — Cambridge & London
         </div>
       </footer>
     </>
