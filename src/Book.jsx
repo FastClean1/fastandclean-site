@@ -24,50 +24,43 @@ export default function Book() {
   const ovenLabel = params.get("ovenLabel") || "";
   const ovenType = params.get("ovenType") || "";
 
+  // Total
   const price = params.get("price") || "";
 
-  // Date + time slot
-  const [date, setDate] = useState("");
-  const [timeSlot, setTimeSlot] = useState("Morning: 9:00 AM – 2:00 PM");
+  // ✅ Date + time slot (ARRIVANO DA QUOTE)
+  const bookingDate = params.get("bookingDate") || "";
+  const timeSlot = params.get("timeSlot") || "";
+  const timeSlotLabel = params.get("timeSlotLabel") || "";
+  const timeStart = params.get("timeStart") || "";
+  const timeEnd = params.get("timeEnd") || "";
 
   // Customer details
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
+  const leadServiceAddress = params.get("address") || "";
+  const leadEmail = params.get("email") || "";
+  const leadPhone = params.get("phone") || "";
+  const leadName = params.get("fullName") || "";
+
+  const [fullName, setFullName] = useState(leadName);
+  const [phone, setPhone] = useState(leadPhone);
+  const [email, setEmail] = useState(leadEmail);
+  const [address, setAddress] = useState(leadServiceAddress);
   const [notes, setNotes] = useState("");
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const todayISO = useMemo(() => {
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
-  }, []);
+  const totalNumber = useMemo(() => {
+    const n = Number(price);
+    return Number.isFinite(n) ? n : 0;
+  }, [price]);
 
-  const submit = () => {
-    setError("");
+  const totalPence = useMemo(() => Math.round(totalNumber * 100), [totalNumber]);
 
-    if (!date || !timeSlot || !fullName || !phone || !email || !address) {
-      setError("Please fill all required fields including date and time slot.");
-      return;
-    }
-
-    // For now we confirm locally. Stripe step comes next.
-    alert(
-      `Booking saved:\n\n` +
-        `${serviceName}\n` +
-        `Date: ${date}\n` +
-        `Time: ${timeSlot}\n` +
-        `Customer: ${fullName} (${phone})\n` +
-        `Email: ${email}\n` +
-        `Address: ${address}\n` +
-        `Total: £${price}\n\n` +
-        `Notes: ${notes || "-"}`
-    );
-  };
+  const scheduleLabel = useMemo(() => {
+    if (timeSlotLabel) return timeSlotLabel;
+    if (timeStart && timeEnd) return `${timeStart}–${timeEnd}`;
+    return timeSlot || "";
+  }, [timeSlotLabel, timeStart, timeEnd, timeSlot]);
 
   const renderServiceSummary = () => {
     if (serviceKey === "handyman") {
@@ -89,7 +82,6 @@ export default function Book() {
       );
     }
 
-    // Default cleaning
     return (
       <>
         <p><strong>Service:</strong> {serviceName}</p>
@@ -98,9 +90,101 @@ export default function Book() {
           {extraLivingRooms} extra living
         </p>
         <p><strong>Base price:</strong> £{basePrice}</p>
-        <p><strong>Additional rooms:</strong> {additionalRooms} · <strong>Additional cost:</strong> £{additionalCost}</p>
+        <p>
+          <strong>Additional rooms:</strong> {additionalRooms} · <strong>Additional cost:</strong> £{additionalCost}
+        </p>
       </>
     );
+  };
+
+  const validate = () => {
+    setError("");
+
+    // Date/time devono arrivare da Quote. Se mancano, significa che qualcuno è arrivato qui “a mano”.
+    if (!bookingDate || !scheduleLabel) {
+      setError("Missing date/time from the quote step. Please go back and select date & time.");
+      return false;
+    }
+
+    if (!fullName || !phone || !email || !address) {
+      setError("Please fill all required fields (name, phone, email, address).");
+      return false;
+    }
+
+    if (!totalPence || totalPence < 100) {
+      setError("Invalid total price. Please go back and recalculate the quote.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const proceedToStripe = async () => {
+    if (!validate()) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const payload = {
+        currency: "gbp",
+        amount: totalPence,
+
+        service: {
+          serviceKey,
+          serviceName,
+          propertyType,
+          bedrooms,
+          bathrooms,
+          extraLivingRooms,
+          additionalRooms,
+          basePrice,
+          additionalCost,
+          hours,
+          rate,
+          ovenType,
+          ovenLabel,
+        },
+
+        schedule: {
+          bookingDate,
+          timeSlot,
+          timeSlotLabel,
+          timeStart,
+          timeEnd,
+        },
+
+        customer: {
+          fullName,
+          phone,
+          email,
+          address,
+          notes,
+        },
+      };
+
+      const res = await fetch("/.netlify/functions/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Stripe session creation failed.");
+      }
+
+      if (!data?.url) {
+        throw new Error("Missing Stripe Checkout URL.");
+      }
+
+      window.location.href = data.url;
+    } catch (e) {
+      setError(e?.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -109,25 +193,18 @@ export default function Book() {
 
       <div className="booking-summary">
         <h2 style={{ marginTop: 0 }}>Booking Summary</h2>
+
         {renderServiceSummary()}
-        <p style={{ marginTop: 10 }}><strong>Total:</strong> £{price}</p>
+
+        <p><strong>Date:</strong> {bookingDate}</p>
+        <p><strong>Time:</strong> {scheduleLabel}</p>
+
+        <p style={{ marginTop: 10 }}>
+          <strong>Total:</strong> £{totalNumber}
+        </p>
       </div>
 
       <div className="booking-form">
-        <label>Preferred Date *</label>
-        <input
-          type="date"
-          min={todayISO}
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-
-        <label>Preferred Time Slot *</label>
-        <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
-          <option>Morning: 9:00 AM – 2:00 PM</option>
-          <option>Afternoon: 3:00 PM – 7:00 PM</option>
-        </select>
-
         <label>Full Name *</label>
         <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
 
@@ -150,8 +227,13 @@ export default function Book() {
 
       {error && <div className="booking-error">{error}</div>}
 
-      <button className="btn-primary full-width" onClick={submit} style={{ marginTop: 14 }}>
-        Proceed (Stripe next)
+      <button
+        className="btn-primary full-width"
+        onClick={proceedToStripe}
+        style={{ marginTop: 14 }}
+        disabled={loading}
+      >
+        {loading ? "Redirecting to Stripe..." : "Pay deposit / Pay now (Stripe)"}
       </button>
     </div>
   );
