@@ -1,156 +1,93 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 export default function Quote() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const serviceKey = params.get("service");
+  const serviceKey = params.get("service") || "deep";
 
   const SERVICES = {
-    deep: {
-      name: "Deep Cleaning",
-      base: { flat: 185, house: 260 },
-      includes: [
-        "Kitchen",
-        "Main living room",
-        "Hallways",
-      ],
-      addons: [
-        { label: "Balcony", price: 60 },
-        { label: "Fridge (inside)", price: 25 },
-        { label: "Freezer (inside)", price: 25 },
-        { label: "Carpet steam clean", price: 40 },
-      ],
-    },
-    eot: {
-      name: "End of Tenancy Cleaning",
-      base: { flat: 215, house: 290 },
-      includes: [
-        "Kitchen",
-        "Main living room",
-        "Hallways",
-        "Fridge & freezer included",
-        "Agency standard cleaning",
-      ],
-      addons: [
-        { label: "Balcony", price: 60 },
-        { label: "Carpet steam clean", price: 40 },
-      ],
-    },
-    after: {
-      name: "After Building Cleaning",
-      base: { flat: 219, house: 294 },
-      includes: [
-        "Post renovation dust removal",
-        "Kitchen",
-        "Living room",
-        "Hallways",
-      ],
-      addons: [],
-    },
+    deep: { name: "Deep Cleaning", base: { flat: 185, house: 260 } },
+    eot: { name: "End of Tenancy Cleaning", base: { flat: 215, house: 290 } },
+    after: { name: "After Building Cleaning", base: { flat: 219, house: 294 } },
   };
 
   const cfg = SERVICES[serviceKey];
 
-  const [type, setType] = useState("flat");
-  const [beds, setBeds] = useState(1);
-  const [baths, setBaths] = useState(1);
-  const [extraRooms, setExtraRooms] = useState(0);
-  const [addons, setAddons] = useState({});
+  const [propertyType, setPropertyType] = useState("flat");
+  const [bedrooms, setBedrooms] = useState(1);
+  const [bathrooms, setBathrooms] = useState(1);
+  const [extraLivingRooms, setExtraLivingRooms] = useState(0);
 
   const additionalRooms =
-    Math.max(0, beds - 1) +
-    Math.max(0, baths - 1) +
-    extraRooms;
+    Math.max(0, bedrooms - 1) +
+    Math.max(0, bathrooms - 1) +
+    Math.max(0, extraLivingRooms);
 
   const additionalCost =
     additionalRooms === 0 ? 0 :
     additionalRooms === 1 ? 35 :
     additionalRooms === 2 ? 50 :
-    additionalRooms === 3 ? 60 :
-    null;
+    additionalRooms === 3 ? 60 : null;
 
-  const addonsTotal = Object.values(addons).reduce((s, v) => s + v, 0);
+  if (additionalCost === null) {
+    return (
+      <div className="booking-container">
+        <h1 className="booking-title">Custom quote required</h1>
+        <p>Please contact us for properties with more than 3 additional rooms.</p>
+      </div>
+    );
+  }
 
-  const total =
-    additionalCost === null
-      ? null
-      : cfg.base[type] + additionalCost + addonsTotal;
+  const total = cfg.base[propertyType] + additionalCost;
+
+  const goNext = () => {
+    const q = new URLSearchParams({
+      serviceKey,
+      serviceName: cfg.name,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      extraLivingRooms,
+      price: total,
+    });
+    navigate(`/book?${q.toString()}`);
+  };
 
   return (
     <div className="booking-container">
       <h1 className="booking-title">{cfg.name}</h1>
 
-      <div className="booking-summary">
-        <strong>What's included</strong>
-        <ul>
-          {cfg.includes.map((i) => (
-            <li key={i}>{i}</li>
-          ))}
-        </ul>
-        <p className="note">
-          Prices are based on property size, not time.
-        </p>
-      </div>
-
       <div className="booking-form">
         <label>Property type</label>
-        <select value={type} onChange={(e) => setType(e.target.value)}>
+        <select value={propertyType} onChange={e => setPropertyType(e.target.value)}>
           <option value="flat">Flat</option>
           <option value="house">House</option>
         </select>
 
         <label>Bedrooms</label>
-        <select value={beds} onChange={(e) => setBeds(+e.target.value)}>
+        <select value={bedrooms} onChange={e => setBedrooms(+e.target.value)}>
           {[1,2,3,4,5].map(n => <option key={n}>{n}</option>)}
         </select>
 
         <label>Bathrooms</label>
-        <select value={baths} onChange={(e) => setBaths(+e.target.value)}>
+        <select value={bathrooms} onChange={e => setBathrooms(+e.target.value)}>
           {[1,2,3].map(n => <option key={n}>{n}</option>)}
         </select>
 
         <label>Extra living rooms</label>
-        <select value={extraRooms} onChange={(e) => setExtraRooms(+e.target.value)}>
+        <select value={extraLivingRooms} onChange={e => setExtraLivingRooms(+e.target.value)}>
           {[0,1,2,3].map(n => <option key={n}>{n}</option>)}
         </select>
-
-        {cfg.addons.map((a) => (
-          <label key={a.label} className="addon">
-            <input
-              type="checkbox"
-              onChange={(e) =>
-                setAddons({
-                  ...addons,
-                  [a.label]: e.target.checked ? a.price : 0,
-                })
-              }
-            />
-            {a.label} (+£{a.price})
-          </label>
-        ))}
       </div>
 
-      {total === null ? (
-        <div className="booking-error">
-          More than 3 additional rooms require a custom quote.
-        </div>
-      ) : (
-        <>
-          <div className="booking-summary">
-            <strong>Total price: £{total}</strong>
-          </div>
+      <div className="booking-summary">
+        <p><strong>Total:</strong> £{total}</p>
+      </div>
 
-          <button
-            className="btn-primary full-width"
-            onClick={() =>
-              navigate(`/book?service=${cfg.name}&price=${total}`)
-            }
-          >
-            Continue
-          </button>
-        </>
-      )}
+      <button className="btn-primary full-width" onClick={goNext}>
+        Continue
+      </button>
     </div>
   );
 }
