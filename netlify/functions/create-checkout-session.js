@@ -6,67 +6,99 @@ exports.handler = async (event) => {
       return { statusCode: 405, body: "Method Not Allowed" };
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const secret = process.env.STRIPE_SECRET_KEY;
+    if (!secret) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Missing STRIPE_SECRET_KEY in environment variables." }),
+      };
+    }
+
+    const stripe = Stripe(secret);
 
     const body = JSON.parse(event.body || "{}");
 
-    const serviceName = String(body.serviceName || "").trim();
-    const amountGBP = Number(body.amountGBP);
-    const bookingDate = String(body.bookingDate || "").trim();
-    const timeSlot = String(body.timeSlot || "").trim();
+    const amount = Number(body?.amount);
+    const currency = (body?.currency || "gbp").toLowerCase();
 
-    const customer = body.customer || {};
-    const fullName = String(customer.fullName || "").trim();
-    const phone = String(customer.phone || "").trim();
-    const email = String(customer.email || "").trim();
-    const address = String(customer.address || "").trim();
-    const notes = String(customer.notes || "").trim();
-
-    const details = body.details || {};
-
-    if (!serviceName || !Number.isFinite(amountGBP) || amountGBP <= 0) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Invalid service name or amount" }) };
+    if (!Number.isFinite(amount) || amount < 100) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Invalid amount." }),
+      };
     }
 
-    if (!bookingDate || !timeSlot || !fullName || !phone || !email || !address) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing booking/customer fields" }) };
-    }
+    const serviceName = body?.service?.serviceName || "Service";
+    const bookingDate = body?.schedule?.bookingDate || "";
+    const timeSlotLabel =
+      body?.schedule?.timeSlotLabel ||
+      (body?.schedule?.timeStart && body?.schedule?.timeEnd
+        ? `${body.schedule.timeStart}-${body.schedule.timeEnd}`
+        : body?.schedule?.timeSlot || "");
 
-    const siteUrl = process.env.SITE_URL || "";
+    const customerEmail = body?.customer?.email || undefined;
+
+    const siteUrl =
+      process.env.URL || "https://fastandcleanltd.netlify.app"; // Netlify provides URL in prod
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card"],
-      customer_email: email,
+      customer_email: customerEmail,
+
       line_items: [
         {
           price_data: {
-            currency: "gbp",
+            currency,
+            unit_amount: amount,
             product_data: {
-              name: serviceName,
-              description: `Booking: ${bookingDate} | ${timeSlot}`,
+              name: `${serviceName}`,
+              description: bookingDate && timeSlotLabel ? `${bookingDate} • ${timeSlotLabel}` : undefined,
             },
-            unit_amount: Math.round(amountGBP * 100),
           },
           quantity: 1,
         },
       ],
+
+      // IMPORTANT: queste pagine devi crearle nel frontend (anche semplici)
+      success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/book?cancelled=1`,
+
       metadata: {
-        serviceName,
-        bookingDate,
-        timeSlot,
-        fullName,
-        phone,
-        address,
-        notes,
-        details: JSON.stringify(details),
+        serviceKey: String(body?.service?.serviceKey || ""),
+        serviceName: String(serviceName || ""),
+        bookingDate: String(bookingDate || ""),
+        timeSlot: String(body?.schedule?.timeSlot || ""),
+        timeSlotLabel: String(timeSlotLabel || ""),
+
+        fullName: String(body?.customer?.fullName || ""),
+        phone: String(body?.customer?.phone || ""),
+        email: String(body?.customer?.email || ""),
+        address: String(body?.customer?.address || ""),
+        notes: String(body?.customer?.notes || ""),
+
+        // Dettagli extra (comodi per te)
+        propertyType: String(body?.service?.propertyType || ""),
+        bedrooms: String(body?.service?.bedrooms || ""),
+        bathrooms: String(body?.service?.bathrooms || ""),
+        extraLivingRooms: String(body?.service?.extraLivingRooms || ""),
+        additionalRooms: String(body?.service?.additionalRooms || ""),
+        basePrice: String(body?.service?.basePrice || ""),
+        additionalCost: String(body?.service?.additionalCost || ""),
+        hours: String(body?.service?.hours || ""),
+        rate: String(body?.service?.rate || ""),
+        ovenType: String(body?.service?.ovenType || ""),
+        ovenLabel: String(body?.service?.ovenLabel || ""),
       },
-      success_url: `${siteUrl}/success`,
-      cancel_url: `${siteUrl}/book?canceled=1`,
     });
 
-    return { statusCode: 200, body: JSON.stringify({ url: session.url }) };
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ id: session.id, url: session.url }),
+    };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: err.message || "Stripe error" }) };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err?.message || "Server error" }),
+    };
   }
 };
