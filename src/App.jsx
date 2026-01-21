@@ -1,8 +1,8 @@
 import React from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import Home from "./Home.jsx";
-import Quote from "./Quote.jsx";
 import Book from "./Book.jsx";
+import Quote from "./Quote.jsx";
 
 export default function App() {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ export default function App() {
 
           <div className="nav-menu">
             <select
-              defaultValue=""
               onChange={(e) => {
                 const v = e.target.value;
                 if (v.startsWith("#")) {
@@ -30,9 +29,13 @@ export default function App() {
                   navigate(v);
                 }
               }}
+              defaultValue=""
             >
-              <option value="" disabled>Menu</option>
-              <option value="#services">Services</option>
+              <option value="" disabled>
+                Menu
+              </option>
+              <option value="/">Home</option>
+              <option value="/quote?service=deep">Get Quote</option>
               <option value="/book">Book Online</option>
               <option value="#contact">Contact</option>
             </select>
@@ -50,7 +53,7 @@ export default function App() {
 
       <footer className="site-footer">
         <div className="container">
-          © {new Date().getFullYear()} Fast & Clean Ltd — Based in Cambridge & London.
+          © {new Date().getFullYear()} Fast & Clean Ltd — Based in Cambridge & London · Professional Home Services.
         </div>
       </footer>
     </>
