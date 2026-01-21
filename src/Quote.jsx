@@ -16,8 +16,7 @@ export default function Quote() {
     []
   );
 
-  // Oven prices chosen inside real competitor ranges:
-  // single ~£45–£70, double ~£60–£90, range ~£85–£125, aga often ~£95–£125+
+  // Oven prices (puoi cambiarli quando vuoi)
   const OVEN_PRICES = useMemo(
     () => ({
       single: { label: "Single Oven (60cm)", price: 55 },
@@ -31,38 +30,87 @@ export default function Quote() {
   const HANDYMAN_RATE = 20;
   const HANDYMAN_MAX_HOURS = 4;
 
-  // ---------- HANDYMAN FLOW ----------
-  const [handymanHours, setHandymanHours] = useState(1);
+  // -------------------------
+  // DATE + TIME SLOT (COMUNE)
+  // -------------------------
+  const TIME_SLOTS = useMemo(
+    () => ({
+      morning: { label: "Morning (09:00–14:00)", value: "morning", start: "09:00", end: "14:00" },
+      afternoon: { label: "Afternoon (15:00–19:00)", value: "afternoon", start: "15:00", end: "19:00" },
+    }),
+    []
+  );
 
+  // min date = oggi (formato yyyy-mm-dd)
+  const todayISO = useMemo(() => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }, []);
+
+  const [bookingDate, setBookingDate] = useState("");
+  const [timeSlot, setTimeSlot] = useState("");
+
+  const canContinueWithSchedule = bookingDate && timeSlot;
+
+  const scheduleParams = () => {
+    const slot = TIME_SLOTS[timeSlot];
+    return {
+      bookingDate,
+      timeSlot,
+      timeSlotLabel: slot?.label || "",
+      timeStart: slot?.start || "",
+      timeEnd: slot?.end || "",
+    };
+  };
+
+  // -------------------------
+  // HANDYMAN FLOW
+  // -------------------------
+  const [handymanHours, setHandymanHours] = useState(1);
   const handymanTotal = handymanHours * HANDYMAN_RATE;
 
   const goBookHandyman = () => {
+    if (!canContinueWithSchedule) return;
+
     const q = new URLSearchParams({
       serviceKey: "handyman",
       serviceName: "Handyman",
       hours: String(handymanHours),
       rate: String(HANDYMAN_RATE),
       price: String(handymanTotal),
+      ...scheduleParams(),
     });
+
     navigate(`/book?${q.toString()}`);
   };
 
-  // ---------- OVEN FLOW ----------
+  // -------------------------
+  // OVEN FLOW
+  // -------------------------
   const [ovenType, setOvenType] = useState("single");
   const ovenTotal = OVEN_PRICES[ovenType]?.price ?? 55;
 
   const goBookOven = () => {
+    if (!canContinueWithSchedule) return;
+
     const q = new URLSearchParams({
       serviceKey: "oven",
       serviceName: "Oven Cleaning",
       ovenType,
       ovenLabel: OVEN_PRICES[ovenType]?.label || "Oven",
       price: String(ovenTotal),
+      ...scheduleParams(),
     });
+
     navigate(`/book?${q.toString()}`);
   };
 
-  // ---------- CLEANING FLOW ----------
+  // -------------------------
+  // CLEANING FLOW
+  // -------------------------
   const cfg = CLEANING_SERVICES[serviceKey];
 
   const [propertyType, setPropertyType] = useState("flat");
@@ -75,13 +123,15 @@ export default function Quote() {
     Math.max(0, bathrooms - 1) +
     Math.max(0, extraLivingRooms);
 
-  // ✅ RULE: +£35 for each additional room (NO LIMIT)
+  // ✅ RULE: +£35 per ogni stanza/bagno/living extra (NO LIMIT)
   const additionalCost = additionalRooms * 35;
 
   const cleaningBasePrice = cfg ? cfg.base[propertyType] : 0;
   const cleaningTotal = cleaningBasePrice + additionalCost;
 
   const goBookCleaning = () => {
+    if (!canContinueWithSchedule) return;
+
     const q = new URLSearchParams({
       serviceKey: cfg.id,
       serviceName: cfg.name,
@@ -93,11 +143,47 @@ export default function Quote() {
       basePrice: String(cleaningBasePrice),
       additionalCost: String(additionalCost),
       price: String(cleaningTotal),
+      ...scheduleParams(),
     });
+
     navigate(`/book?${q.toString()}`);
   };
 
-  // ---------- RENDER ----------
+  // -------------------------
+  // UI: BLOCCO SCHEDULE (riusabile)
+  // -------------------------
+  const ScheduleBlock = () => (
+    <div className="booking-form" style={{ marginTop: 16 }}>
+      <h2 style={{ marginTop: 0 }}>Preferred date & time</h2>
+
+      <label>Date *</label>
+      <input
+        type="date"
+        min={todayISO}
+        value={bookingDate}
+        onChange={(e) => setBookingDate(e.target.value)}
+      />
+
+      <label>Time slot *</label>
+      <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
+        <option value="" disabled>
+          Select a slot
+        </option>
+        <option value="morning">{TIME_SLOTS.morning.label}</option>
+        <option value="afternoon">{TIME_SLOTS.afternoon.label}</option>
+      </select>
+
+      {!canContinueWithSchedule ? (
+        <div className="booking-error" style={{ marginTop: 10 }}>
+          Please select a date and a time slot to continue.
+        </div>
+      ) : null}
+    </div>
+  );
+
+  // -------------------------
+  // RENDER
+  // -------------------------
   // Handyman
   if (serviceKey === "handyman") {
     return (
@@ -114,18 +200,38 @@ export default function Quote() {
             onChange={(e) => setHandymanHours(Number(e.target.value))}
           >
             {Array.from({ length: HANDYMAN_MAX_HOURS }, (_, i) => i + 1).map((h) => (
-              <option key={h} value={h}>{h}</option>
+              <option key={h} value={h}>
+                {h}
+              </option>
             ))}
           </select>
         </div>
 
+        <ScheduleBlock />
+
         <div className="booking-summary">
           <h2 style={{ marginTop: 0 }}>Quote Summary</h2>
-          <p><strong>Rate:</strong> £{HANDYMAN_RATE}/hour</p>
-          <p><strong>Hours:</strong> {handymanHours}</p>
-          <p style={{ marginTop: 10 }}><strong>Total price:</strong> £{handymanTotal}</p>
+          <p>
+            <strong>Rate:</strong> £{HANDYMAN_RATE}/hour
+          </p>
+          <p>
+            <strong>Hours:</strong> {handymanHours}
+          </p>
+          <p>
+            <strong>Date:</strong> {bookingDate || "-"}
+          </p>
+          <p>
+            <strong>Time slot:</strong> {TIME_SLOTS[timeSlot]?.label || "-"}
+          </p>
+          <p style={{ marginTop: 10 }}>
+            <strong>Total price:</strong> £{handymanTotal}
+          </p>
 
-          <button className="btn-primary full-width" onClick={goBookHandyman}>
+          <button
+            className="btn-primary full-width"
+            onClick={goBookHandyman}
+            disabled={!canContinueWithSchedule}
+          >
             Continue to booking
           </button>
 
@@ -157,13 +263,31 @@ export default function Quote() {
           </select>
         </div>
 
+        <ScheduleBlock />
+
         <div className="booking-summary">
           <h2 style={{ marginTop: 0 }}>Quote Summary</h2>
-          <p><strong>Service:</strong> Oven Cleaning</p>
-          <p><strong>Oven:</strong> {OVEN_PRICES[ovenType]?.label}</p>
-          <p style={{ marginTop: 10 }}><strong>Total price:</strong> £{ovenTotal}</p>
+          <p>
+            <strong>Service:</strong> Oven Cleaning
+          </p>
+          <p>
+            <strong>Oven:</strong> {OVEN_PRICES[ovenType]?.label}
+          </p>
+          <p>
+            <strong>Date:</strong> {bookingDate || "-"}
+          </p>
+          <p>
+            <strong>Time slot:</strong> {TIME_SLOTS[timeSlot]?.label || "-"}
+          </p>
+          <p style={{ marginTop: 10 }}>
+            <strong>Total price:</strong> £{ovenTotal}
+          </p>
 
-          <button className="btn-primary full-width" onClick={goBookOven}>
+          <button
+            className="btn-primary full-width"
+            onClick={goBookOven}
+            disabled={!canContinueWithSchedule}
+          >
             Continue to booking
           </button>
 
@@ -181,7 +305,9 @@ export default function Quote() {
       <div className="booking-container">
         <h1 className="booking-title">Service not found</h1>
         <p>Go back and select a service.</p>
-        <Link to="/" className="btn-primary">Back to Home</Link>
+        <Link to="/" className="btn-primary">
+          Back to Home
+        </Link>
       </div>
     );
   }
@@ -191,9 +317,11 @@ export default function Quote() {
       <h1 className="booking-title">{cfg.name} — Instant Quote</h1>
 
       <p className="section-subtitle" style={{ textAlign: "left" }}>
-        Base always includes: <strong>Kitchen + Primary Living Room + Hallway + 1 Bedroom + 1 Bathroom</strong>.
+        Base always includes:{" "}
+        <strong>Kitchen + Primary Living Room + Hallway + 1 Bedroom + 1 Bathroom</strong>.
         <br />
-        Each additional bedroom, bathroom or extra living room is <strong>+£35</strong> (no limits).
+        Each additional bedroom, bathroom or extra living room is{" "}
+        <strong>+£35</strong> (no limits).
       </p>
 
       <div className="booking-form">
@@ -205,33 +333,60 @@ export default function Quote() {
 
         <label>Bedrooms *</label>
         <select value={bedrooms} onChange={(e) => setBedrooms(Number(e.target.value))}>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>{n}</option>
+          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
           ))}
         </select>
 
         <label>Bathrooms *</label>
         <select value={bathrooms} onChange={(e) => setBathrooms(Number(e.target.value))}>
-          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>{n}</option>
+          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
           ))}
         </select>
 
         <label>Extra living rooms (primary living room included) *</label>
-        <select value={extraLivingRooms} onChange={(e) => setExtraLivingRooms(Number(e.target.value))}>
-          {Array.from({ length: 10 }, (_, i) => i).map((n) => (
-            <option key={n} value={n}>{n}</option>
+        <select
+          value={extraLivingRooms}
+          onChange={(e) => setExtraLivingRooms(Number(e.target.value))}
+        >
+          {Array.from({ length: 20 }, (_, i) => i).map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
           ))}
         </select>
       </div>
 
+      <ScheduleBlock />
+
       <div className="booking-summary">
         <h2 style={{ marginTop: 0 }}>Quote Summary</h2>
-        <p><strong>Base price:</strong> £{cleaningBasePrice} ({propertyType})</p>
-        <p><strong>Additional rooms:</strong> {additionalRooms} × £35 = £{additionalCost}</p>
-        <p style={{ marginTop: 10 }}><strong>Total price:</strong> £{cleaningTotal}</p>
+        <p>
+          <strong>Base price:</strong> £{cleaningBasePrice} ({propertyType})
+        </p>
+        <p>
+          <strong>Additional rooms:</strong> {additionalRooms} × £35 = £{additionalCost}
+        </p>
+        <p>
+          <strong>Date:</strong> {bookingDate || "-"}
+        </p>
+        <p>
+          <strong>Time slot:</strong> {TIME_SLOTS[timeSlot]?.label || "-"}
+        </p>
+        <p style={{ marginTop: 10 }}>
+          <strong>Total price:</strong> £{cleaningTotal}
+        </p>
 
-        <button className="btn-primary full-width" onClick={goBookCleaning}>
+        <button
+          className="btn-primary full-width"
+          onClick={goBookCleaning}
+          disabled={!canContinueWithSchedule}
+        >
           Continue to booking
         </button>
 
