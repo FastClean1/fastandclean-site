@@ -1,36 +1,36 @@
 import React, { useMemo, useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Book() {
+  const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { search } = useLocation();
-  const params = useMemo(() => new URLSearchParams(search), [search]);
 
-  // -----------------------------
-  // Read values coming from /quote
-  // -----------------------------
-  const serviceKey = params.get("serviceKey") || "";
+  const serviceKey = params.get("serviceKey") || params.get("service") || "deep";
   const serviceName = params.get("serviceName") || "Service";
   const price = Number(params.get("price") || 0);
 
-  // Optional extras coming from Quote.jsx (kept for email/summary)
-  const propertyType = params.get("propertyType") || "";
-  const bedrooms = params.get("bedrooms") || "";
-  const bathrooms = params.get("bathrooms") || "";
-  const extraLivingRooms = params.get("extraLivingRooms") || "";
-  const additionalRooms = params.get("additionalRooms") || "";
-  const basePrice = params.get("basePrice") || "";
-  const additionalCost = params.get("additionalCost") || "";
+  const summary = useMemo(() => {
+    // Mostra qualche dettaglio extra se arrivano da Quote
+    const propertyType = params.get("propertyType");
+    const bedrooms = params.get("bedrooms");
+    const bathrooms = params.get("bathrooms");
+    const extraLivingRooms = params.get("extraLivingRooms");
+    const ovenLabel = params.get("ovenLabel");
+    const hours = params.get("hours");
 
-  const ovenType = params.get("ovenType") || "";
-  const ovenLabel = params.get("ovenLabel") || "";
+    const lines = [];
 
-  const hours = params.get("hours") || "";
-  const rate = params.get("rate") || "";
+    if (serviceKey === "oven" && ovenLabel) lines.push(`Oven: ${ovenLabel}`);
+    if (serviceKey === "handyman" && hours) lines.push(`Hours: ${hours}`);
+    if (propertyType) lines.push(`Property: ${propertyType}`);
+    if (bedrooms) lines.push(`Bedrooms: ${bedrooms}`);
+    if (bathrooms) lines.push(`Bathrooms: ${bathrooms}`);
+    if (extraLivingRooms) lines.push(`Extra living rooms: ${extraLivingRooms}`);
 
-  // -----------------------------
-  // Booking form state
-  // -----------------------------
+    return lines;
+  }, [params, serviceKey]);
+
+  // Customer fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -42,163 +42,152 @@ export default function Book() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // -----------------------------
-  // Helpers
-  // -----------------------------
-  const validate = () => {
-    if (!fullName.trim()) return "Full name is required.";
-    if (!email.trim()) return "Email is required.";
-    if (!phone.trim()) return "Phone is required.";
-    if (!address.trim()) return "Address is required.";
-    if (!date) return "Date is required.";
-    if (!price || Number.isNaN(price)) return "Price is missing. Go back and try again.";
-    return "";
-  };
-
-  // -----------------------------
-  // ✅ PAY: Save bookingData BEFORE redirecting to Stripe
-  // -----------------------------
-  const startCheckout = async () => {
+  const payNow = async () => {
     setError("");
-    const msg = validate();
-    if (msg) {
-      setError(msg);
+
+    if (!fullName || !email || !phone || !address || !date) {
+      setError("Please fill in all required fields.");
       return;
     }
+    if (!price || Number.isNaN(price) || price <= 0) {
+      setError("Invalid price. Go back and generate a quote again.");
+      return;
+    }
+
+    // ✅ 1) SALVA BOOKINGDATA PRIMA DI STRIPE (questa è la chiave)
+    const bookingData = {
+      serviceKey,
+      serviceName,
+      price,
+      fullName,
+      email,
+      phone,
+      address,
+      date,
+      timeSlot,
+      notes,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem("bookingData", JSON.stringify(bookingData));
 
     setLoading(true);
 
     try {
-      // ✅ This is THE fix: persist booking data before leaving to Stripe
-      const bookingData = {
-        // customer
-        fullName: fullName.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
-        address: address.trim(),
-
-        // booking
-        date,
-        timeSlot,
-        notes: notes?.trim() || "-",
-
-        // service
-        serviceKey,
-        serviceName,
-        price: String(price),
-
-        // optional details (for nicer emails)
-        propertyType,
-        bedrooms,
-        bathrooms,
-        extraLivingRooms,
-        additionalRooms,
-        basePrice,
-        additionalCost,
-
-        ovenType,
-        ovenLabel,
-
-        hours,
-        rate,
-      };
-
-      localStorage.setItem("bookingData", JSON.stringify(bookingData));
-
-      // Create Stripe checkout session (Netlify function)
+      // ✅ 2) crea checkout session su Netlify function
       const res = await fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           serviceKey,
           serviceName,
-          price,
-          // success/cancel handled by your function or Stripe session config
+          amount: price, // in GBP "normal" (la function converte in pence)
+          customerEmail: email,
         }),
       });
 
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to create checkout session");
+      }
+
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to create checkout session.");
-      }
+      // mi aspetto uno di questi campi dalla tua function:
+      const checkoutUrl = data?.url || data?.checkoutUrl;
+      if (!checkoutUrl) throw new Error("Checkout URL missing from server response");
 
-      if (!data?.url) {
-        throw new Error("Checkout URL missing from server response.");
-      }
-
-      // Redirect to Stripe
-      window.location.href = data.url;
+      // ✅ 3) vai su Stripe
+      window.location.href = checkoutUrl;
     } catch (e) {
-      console.error(e);
-      setError(e?.message || "Something went wrong.");
+      setError(String(e?.message || e));
       setLoading(false);
     }
   };
 
-  // -----------------------------
-  // Render
-  // -----------------------------
   return (
     <div className="booking-container">
       <h1 className="booking-title">Booking</h1>
 
       <p className="section-subtitle" style={{ textAlign: "left" }}>
-        <strong>Service:</strong> {serviceName}
-        <br />
-        <strong>Total:</strong> £{price}
+        Complete your details and proceed to payment.
       </p>
 
       <div className="booking-form">
-        <label>Full Name *</label>
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" />
+        <label>Service</label>
+        <input value={serviceName} readOnly />
+
+        <label>Total price</label>
+        <input value={`£${price}`} readOnly />
+
+        {summary.length > 0 && (
+          <>
+            <label>Details</label>
+            <div style={{ fontSize: 14, color: "#6b7280" }}>
+              {summary.map((x, i) => (
+                <div key={i}>• {x}</div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <hr style={{ margin: "16px 0", opacity: 0.3 }} />
+
+        <label>Full name *</label>
+        <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
 
         <label>Email *</label>
-        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" type="email" />
+        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
 
         <label>Phone *</label>
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone number" />
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} />
 
         <label>Address *</label>
-        <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Full address" />
+        <input value={address} onChange={(e) => setAddress(e.target.value)} />
 
         <label>Date *</label>
         <input value={date} onChange={(e) => setDate(e.target.value)} type="date" />
 
-        <label>Time Slot *</label>
+        <label>Time slot *</label>
         <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
           <option>Morning: 9:00 AM – 2:00 PM</option>
           <option>Afternoon: 3:00 PM – 7:00 PM</option>
-          <option>Evening: 7:00 PM – 10:00 PM</option>
         </select>
 
-        <label>Notes (optional)</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything we should know?" />
-      </div>
+        <label>Notes</label>
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
 
-      {error ? (
-        <div style={{ marginTop: 12, color: "#b91c1c", fontSize: 14 }}>
-          <strong>Error:</strong> {error}
-        </div>
-      ) : null}
+        {error && (
+          <div style={{ marginTop: 10, color: "#b91c1c", fontSize: 14 }}>
+            {error}
+          </div>
+        )}
 
-      <div className="booking-summary">
-        <h2 style={{ marginTop: 0 }}>Summary</h2>
-        <p>
-          <strong>Service:</strong> {serviceName}
-        </p>
-        <p>
-          <strong>Total price:</strong> £{price}
-        </p>
-
-        <button className="btn-primary full-width" onClick={startCheckout} disabled={loading}>
-          {loading ? "Redirecting to payment..." : "Pay & Confirm Booking"}
+        <button className="btn-primary full-width" onClick={payNow} disabled={loading}>
+          {loading ? "Redirecting to payment..." : "Pay & Confirm"}
         </button>
 
         <div style={{ marginTop: 12, fontSize: 13, color: "#6b7280" }}>
-          <Link to={`/quote?service=${encodeURIComponent(serviceKey || "deep")}`}>← Back to Quote</Link>
+          <Link to={`/quote?service=${encodeURIComponent(serviceKey)}`}>← Back to Quote</Link>
           {" · "}
-          <Link to="/">Home</Link>
+          <button
+            type="button"
+            onClick={() => {
+              // se vuoi annullare e pulire
+              localStorage.removeItem("bookingData");
+              navigate("/");
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#6b7280",
+              textDecoration: "underline",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            Cancel and go Home
+          </button>
         </div>
       </div>
     </div>
