@@ -33,9 +33,7 @@ export default function App() {
               }}
               defaultValue=""
             >
-              <option value="" disabled>
-                Menu
-              </option>
+              <option value="" disabled>Menu</option>
               <option value="/">Home</option>
               <option value="/quote?service=deep">Get Quote</option>
               <option value="/book">Book Online</option>
