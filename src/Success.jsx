@@ -4,14 +4,16 @@ import emailjs from "@emailjs/browser";
 
 export default function Success() {
   const [params] = useSearchParams();
-  const [status, setStatus] = useState("Processing payment result...");
-  const [details, setDetails] = useState(null);
-
-  // Stripe usually returns session_id on success redirect
   const sessionId = params.get("session_id") || params.get("sessionId") || "";
 
-  // Read booking from storage (same browser/session)
-  const booking = useMemo(() => {
+  const [status, setStatus] = useState("Payment successful.");
+  const [booking, setBooking] = useState(null);
+
+  const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+  const bookingFromStorage = useMemo(() => {
     try {
       const raw = localStorage.getItem("bookingData");
       return raw ? JSON.parse(raw) : null;
@@ -21,86 +23,46 @@ export default function Success() {
   }, []);
 
   useEffect(() => {
-    // If we cannot read booking data, we still show success but can't email
-    if (!booking) {
-      setStatus(
-        "Payment successful. (No booking data found in this browser session to email automatically.)"
-      );
-      setDetails(null);
+    setBooking(bookingFromStorage);
+
+    if (!bookingFromStorage) {
+      setStatus("Payment successful. (No booking data found in this browser session to email automatically.)");
       return;
     }
 
-    // Avoid resending email if user refreshes Success page
-    const sentKey = sessionId
-      ? `emailSentForSession:${sessionId}`
-      : "emailSentForSession:no-session";
-    const alreadySent = localStorage.getItem(sentKey) === "1";
-    if (alreadySent) {
-      setStatus("Payment successful. Confirmation email already sent.");
-      setDetails({
-        service: booking.serviceName || "-",
-        date: booking.date || "-",
-        time: booking.timeSlot || "-",
-        total: booking.price || "-",
-        customer: `${booking.fullName || "-"} (${booking.email || "-"})`,
-      });
+    // evita invii doppi sul refresh
+    const alreadySentKey = `emailSentForSession:${sessionId || "no_session_id"}`;
+    const alreadySent = localStorage.getItem(alreadySentKey);
+    if (alreadySent === "1") {
+      setStatus("Payment successful. Confirmation email already sent for this session.");
       return;
     }
 
-    // --------- ENV VARS (Vite) ----------
-    const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-    const missing = [];
-    if (!SERVICE_ID) missing.push("VITE_EMAILJS_SERVICE_ID");
-    if (!TEMPLATE_ID) missing.push("VITE_EMAILJS_TEMPLATE_ID");
-    if (!PUBLIC_KEY) missing.push("VITE_EMAILJS_PUBLIC_KEY");
-
-    // Build details for UI
-    const uiDetails = {
-      service: booking.serviceName || "—",
-      date: booking.date || "—",
-      time: booking.timeSlot || "—",
-      total: booking.price ? `£${booking.price}` : "—",
-      customer: `${booking.fullName || "—"} (${booking.email || "—"})`,
-    };
-    setDetails(uiDetails);
-
-    if (missing.length) {
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
       setStatus(
-        `Payment successful. Missing EmailJS env vars (${missing.join(" / ")}).`
+        "Payment successful. Missing EmailJS env vars (VITE_EMAILJS_SERVICE_ID / VITE_EMAILJS_TEMPLATE_ID / VITE_EMAILJS_PUBLIC_KEY)."
       );
       return;
     }
 
-    // --------- ✅ NEW TEMPLATE PARAMS (MATCH TEMPLATE) ----------
-    // Template uses: {{email}}, {{service}}, {{booking_date}}, {{booking_time}}, {{address}}, {{full_name}}, {{phone}} (+ optional others)
+    // ✅ PARAMETRI ALLINEATI AL TUO TEMPLATE (quello dello screenshot)
     const templateParams = {
-      email: booking.email || "",
-      service: booking.serviceName || "",
-      booking_date: booking.date || "",
-      booking_time: booking.timeSlot || "",
-      address: booking.address || "",
-      full_name: booking.fullName || "",
-      phone: booking.phone || "",
-      price: booking.price || "",
-      notes: booking.notes || "-",
+      email: bookingFromStorage.email,
+      service: bookingFromStorage.serviceName,
+      booking_date: bookingFromStorage.date,
+      booking_time: bookingFromStorage.timeSlot,
+      address: bookingFromStorage.address,
+      full_name: bookingFromStorage.fullName,
+      phone: bookingFromStorage.phone,
+      price: bookingFromStorage.price,
+      notes: bookingFromStorage.notes || "-",
       session_id: sessionId || "-",
     };
-
-    // If recipient email missing, don't attempt send
-    if (!templateParams.email) {
-      setStatus(
-        "Payment successful, but email failed to send. (EmailJS error) The recipients address is empty."
-      );
-      return;
-    }
 
     emailjs
       .send(SERVICE_ID, TEMPLATE_ID, templateParams, { publicKey: PUBLIC_KEY })
       .then(() => {
-        localStorage.setItem(sentKey, "1");
+        localStorage.setItem(alreadySentKey, "1");
         setStatus("Payment successful. Confirmation email sent to the customer.");
       })
       .catch((err) => {
@@ -109,7 +71,7 @@ export default function Success() {
             (err?.text || err?.message || "")
         );
       });
-  }, [booking, sessionId]);
+  }, [SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY, bookingFromStorage, sessionId]);
 
   return (
     <div className="booking-container">
@@ -119,26 +81,17 @@ export default function Success() {
         <h2 style={{ marginTop: 0 }}>Status</h2>
         <p>{status}</p>
 
-        {details && (
+        {booking && (
           <>
-            <hr style={{ margin: "16px 0" }} />
-            <p>
-              <strong>Service:</strong> {details.service}
-            </p>
-            <p>
-              <strong>Date:</strong> {details.date} · <strong>Time:</strong>{" "}
-              {details.time}
-            </p>
-            <p>
-              <strong>Total:</strong> {details.total}
-            </p>
-            <p>
-              <strong>Customer:</strong> {details.customer}
-            </p>
+            <hr style={{ margin: "14px 0", opacity: 0.3 }} />
+            <p><strong>Service:</strong> {booking.serviceName}</p>
+            <p><strong>Date:</strong> {booking.date} · <strong>Time:</strong> {booking.timeSlot}</p>
+            <p><strong>Total:</strong> £{booking.price}</p>
+            <p><strong>Customer:</strong> {booking.fullName} ({booking.email})</p>
           </>
         )}
 
-        <Link to="/" className="btn-primary" style={{ marginTop: 16 }}>
+        <Link to="/" className="btn-primary" style={{ display: "inline-block", marginTop: 12 }}>
           Back to Home
         </Link>
       </div>
