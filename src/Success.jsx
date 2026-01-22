@@ -4,84 +4,62 @@ import emailjs from "@emailjs/browser";
 
 export default function Success() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [params] = useSearchParams();
 
-  const sessionId = searchParams.get("session_id") || "";
-  const [status, setStatus] = useState("Payment successful. Preparing email…");
+  const sessionId = useMemo(() => params.get("session_id") || "-", [params]);
+
+  const [status, setStatus] = useState("Payment successful.");
   const [booking, setBooking] = useState(null);
 
-  const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-  const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-  const missingEnv = useMemo(() => {
-    const missing = [];
-    if (!SERVICE_ID) missing.push("VITE_EMAILJS_SERVICE_ID");
-    if (!TEMPLATE_ID) missing.push("VITE_EMAILJS_TEMPLATE_ID");
-    if (!PUBLIC_KEY) missing.push("VITE_EMAILJS_PUBLIC_KEY");
-    return missing;
-  }, [SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY]);
-
   useEffect(() => {
-    // 1) read bookingData from localStorage
+    // 1) prendi bookingData dal localStorage
     const raw = localStorage.getItem("bookingData");
-    if (!raw) {
+    const parsed = raw ? JSON.parse(raw) : null;
+    setBooking(parsed);
+
+    if (!parsed) {
       setStatus(
         "Payment successful. (No booking data found in this browser session to email automatically.)"
       );
       return;
     }
 
-    try {
-      const parsed = JSON.parse(raw);
-      setBooking(parsed);
-    } catch {
-      setStatus(
-        "Payment successful. (Booking data was corrupted. Cannot email automatically.)"
-      );
+    // evita doppio invio per lo stesso session_id
+    const already = localStorage.getItem("emailSentForSession");
+    if (already && already === sessionId) {
+      setStatus("Payment successful. Confirmation email already sent.");
       return;
     }
-  }, []);
 
-  useEffect(() => {
-    if (!booking) return;
+    const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-    // prevent double-send for same Stripe session
-    if (sessionId) {
-      const sentFor = localStorage.getItem("emailSentForSession");
-      if (sentFor === sessionId) {
-        setStatus("Payment successful. Confirmation email already sent.");
-        return;
-      }
-    }
-
-    if (missingEnv.length) {
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
       setStatus(
-        `Payment successful. Missing EmailJS env vars (${missingEnv.join(
-          " / "
-        )}).`
+        "Payment successful. Missing EmailJS env vars (VITE_EMAILJS_SERVICE_ID / VITE_EMAILJS_TEMPLATE_ID / VITE_EMAILJS_PUBLIC_KEY)."
       );
       return;
     }
 
-    // ✅ NEW TEMPLATE PARAMS (exactly what you posted)
+    // 2) template params coerenti col tuo template EmailJS
     const templateParams = {
-      to_email: booking.email,
-      customer_name: booking.fullName,
-      phone: booking.phone,
-      address: booking.address,
-      service_name: booking.serviceName,
-      date: booking.date,
-      time: booking.timeSlot,
-      price: booking.price,
-      notes: booking.notes || "-",
+      email: parsed.email,                 // To Email = {{email}}
+      full_name: parsed.fullName,
+      phone: parsed.phone,
+      address: parsed.address,
+      service: parsed.serviceName,
+      booking_date: parsed.date,
+      booking_time: parsed.timeSlot,
+      notes: parsed.notes || "-",
+      price: parsed.price != null ? `£${parsed.price}` : "-",
       session_id: sessionId || "-",
     };
 
     emailjs
       .send(SERVICE_ID, TEMPLATE_ID, templateParams, { publicKey: PUBLIC_KEY })
       .then(() => {
-        if (sessionId) localStorage.setItem("emailSentForSession", sessionId);
+        localStorage.setItem("emailSentForSession", sessionId);
         setStatus("Payment successful. Confirmation email sent to the customer.");
       })
       .catch((err) => {
@@ -90,40 +68,43 @@ export default function Success() {
             (err?.text || err?.message || "")
         );
       });
-  }, [booking, sessionId, missingEnv, SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY]);
+  }, [sessionId]);
 
   return (
-    <div className="container" style={{ padding: "24px 0" }}>
-      <h1>Payment successful</h1>
+    <div style={{ maxWidth: 900, margin: "30px auto", padding: 16 }}>
+      <h2>Payment successful</h2>
 
-      <div className="card" style={{ padding: 16 }}>
-        <h3 style={{ marginTop: 0 }}>Status</h3>
-        <p style={{ marginTop: 6 }}>{status}</p>
+      <div
+        style={{
+          marginTop: 12,
+          background: "#f6f6f6",
+          padding: 16,
+          borderRadius: 12,
+        }}
+      >
+        <h3>Status</h3>
+        <div style={{ marginBottom: 12 }}>{status}</div>
 
-        {booking && (
-          <>
-            <hr style={{ margin: "16px 0" }} />
-            <p>
-              <strong>Service:</strong> {booking.serviceName}
-            </p>
-            <p>
-              <strong>Date:</strong> {booking.date} · <strong>Time:</strong>{" "}
-              {booking.timeSlot}
-            </p>
-            <p>
-              <strong>Total:</strong>{" "}
-              {booking.price ? `£${booking.price}` : "—"}
-            </p>
-            <p>
-              <strong>Customer:</strong> {booking.fullName} ({booking.email})
-            </p>
-          </>
-        )}
+        {booking ? (
+          <div style={{ borderTop: "1px solid #ddd", paddingTop: 12 }}>
+            <div><b>Service:</b> {booking.serviceName} (£{booking.price})</div>
+            <div><b>Date:</b> {booking.date} · <b>Time:</b> {booking.timeSlot}</div>
+            <div><b>Total:</b> £{booking.price}</div>
+            <div><b>Customer:</b> {booking.fullName} ({booking.email})</div>
+          </div>
+        ) : null}
 
         <button
-          className="btn-primary"
-          style={{ marginTop: 14 }}
           onClick={() => navigate("/")}
+          style={{
+            marginTop: 14,
+            padding: "10px 16px",
+            borderRadius: 10,
+            border: "none",
+            background: "#1d4ed8",
+            color: "white",
+            cursor: "pointer",
+          }}
         >
           Back to Home
         </button>
