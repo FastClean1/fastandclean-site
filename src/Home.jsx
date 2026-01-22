@@ -38,6 +38,15 @@ export default function Home() {
         "Repairs, assembly, minor jobs. £20/hour. Choose 1–4 hours maximum.",
       priceFrom: "£20/hour",
     },
+
+    // ✅ TEST SERVICE £1 (NUOVO, REALE)
+    {
+      id: "test",
+      name: "Test Service (£1)",
+      description:
+        "Temporary service used to test booking, Stripe payment and confirmation emails.",
+      priceFrom: "£1",
+    },
   ];
 
   return (
