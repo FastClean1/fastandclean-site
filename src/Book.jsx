@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 export default function Book() {
   const [params] = useSearchParams();
@@ -52,9 +52,15 @@ export default function Book() {
     if (serviceKey === "handyman") {
       return (
         <>
-          <p><strong>Service:</strong> {serviceName}</p>
-          <p><strong>Hours:</strong> {hours} (max 4)</p>
-          <p><strong>Rate:</strong> £{rate}/hour</p>
+          <p>
+            <strong>Service:</strong> {serviceName}
+          </p>
+          <p>
+            <strong>Hours:</strong> {hours} (max 4)
+          </p>
+          <p>
+            <strong>Rate:</strong> £{rate}/hour
+          </p>
         </>
       );
     }
@@ -62,29 +68,37 @@ export default function Book() {
     if (serviceKey === "oven") {
       return (
         <>
-          <p><strong>Service:</strong> {serviceName}</p>
-          <p><strong>Oven type:</strong> {ovenLabel || ovenType}</p>
+          <p>
+            <strong>Service:</strong> {serviceName}
+          </p>
+          <p>
+            <strong>Oven type:</strong> {ovenLabel || ovenType}
+          </p>
         </>
       );
     }
 
     return (
       <>
-        <p><strong>Service:</strong> {serviceName}</p>
+        <p>
+          <strong>Service:</strong> {serviceName}
+        </p>
         <p>
           <strong>Property:</strong> {propertyType} · {bedrooms} bed · {bathrooms} bath ·{" "}
           {extraLivingRooms} extra living
         </p>
-        <p><strong>Base price:</strong> £{basePrice}</p>
         <p>
-          <strong>Additional rooms:</strong> {additionalRooms} ·{" "}
-          <strong>Additional cost:</strong> £{additionalCost}
+          <strong>Base price:</strong> £{basePrice}
+        </p>
+        <p>
+          <strong>Additional rooms:</strong> {additionalRooms} · <strong>Additional cost:</strong> £
+          {additionalCost}
         </p>
       </>
     );
   };
 
-  const submit = async () => {
+  const proceedToStripe = async () => {
     setError("");
 
     if (!date || !timeSlot || !fullName || !phone || !email || !address) {
@@ -92,10 +106,36 @@ export default function Book() {
       return;
     }
 
-    if (!price || Number(price) <= 0 || Number.isNaN(Number(price))) {
-      setError("Invalid price. Please go back and generate a quote again.");
-      return;
-    }
+    // Booking object (salvato per /success)
+    const booking = {
+      serviceKey,
+      serviceName,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      extraLivingRooms,
+      additionalRooms,
+      basePrice,
+      additionalCost,
+      hours,
+      rate,
+      ovenLabel,
+      ovenType,
+      price,
+      date,
+      timeSlot,
+      fullName,
+      phone,
+      email,
+      address,
+      notes,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Salva in sessionStorage così Success.jsx può mandare l'email
+    sessionStorage.setItem("lastBooking", JSON.stringify(booking));
+    // Reset flag per evitare “email già inviata” da una prenotazione precedente
+    localStorage.removeItem("emailSentForSession");
 
     setLoading(true);
 
@@ -103,35 +143,18 @@ export default function Book() {
       const res = await fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: price,
-          serviceName,
-          date,
-          timeSlot,
-          customerEmail: email,
-
-          // (facoltativo) dati extra che potrai usare dopo con webhook/logs
-          customerName: fullName,
-          customerPhone: phone,
-          address,
-          notes,
-          serviceKey,
-        }),
+        body: JSON.stringify({ booking }),
       });
 
       const data = await res.json();
-
-      if (!res.ok || !data.url) {
-        setError(data?.error || data?.message || "Payment error. Please try again.");
-        setLoading(false);
-        return;
+      if (!res.ok || !data?.url) {
+        throw new Error(data?.error || "Failed to create Stripe session.");
       }
 
-      // Redirect to Stripe Checkout
       window.location.href = data.url;
     } catch (e) {
-      setError("Network error. Please try again.");
       setLoading(false);
+      setError(String(e?.message || e));
     }
   };
 
@@ -142,20 +165,14 @@ export default function Book() {
       <div className="booking-summary">
         <h2 style={{ marginTop: 0 }}>Booking Summary</h2>
         {renderServiceSummary()}
-        <p style={{ marginTop: 10 }}><strong>Total:</strong> £{price}</p>
-        <div style={{ marginTop: 10, fontSize: 13, color: "#6b7280" }}>
-          <Link to="/quote?service=deep">← Back to quote</Link>
-        </div>
+        <p style={{ marginTop: 10 }}>
+          <strong>Total:</strong> £{price}
+        </p>
       </div>
 
       <div className="booking-form">
         <label>Preferred Date *</label>
-        <input
-          type="date"
-          min={todayISO}
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
+        <input type="date" min={todayISO} value={date} onChange={(e) => setDate(e.target.value)} />
 
         <label>Preferred Time Slot *</label>
         <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
@@ -170,11 +187,7 @@ export default function Book() {
         <input value={phone} onChange={(e) => setPhone(e.target.value)} />
 
         <label>Email Address *</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
 
         <label>Service Address *</label>
         <input value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -187,8 +200,8 @@ export default function Book() {
 
       <button
         className="btn-primary full-width"
-        onClick={submit}
-        style={{ marginTop: 14, opacity: loading ? 0.7 : 1 }}
+        onClick={proceedToStripe}
+        style={{ marginTop: 14 }}
         disabled={loading}
       >
         {loading ? "Redirecting to Stripe..." : "Pay deposit / Pay now (Stripe)"}
