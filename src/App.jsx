@@ -3,6 +3,8 @@ import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import Home from "./Home.jsx";
 import Quote from "./Quote.jsx";
 import Book from "./Book.jsx";
+import Success from "./Success.jsx";
+import Cancel from "./Cancel.jsx";
 
 export default function App() {
   const navigate = useNavigate();
@@ -31,7 +33,9 @@ export default function App() {
               }}
               defaultValue=""
             >
-              <option value="" disabled>Menu</option>
+              <option value="" disabled>
+                Menu
+              </option>
               <option value="/">Home</option>
               <option value="/quote?service=deep">Get Quote</option>
               <option value="/book">Book Online</option>
@@ -46,6 +50,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/quote" element={<Quote />} />
           <Route path="/book" element={<Book />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
         </Routes>
       </main>
 
