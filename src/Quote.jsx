@@ -16,8 +16,6 @@ export default function Quote() {
     []
   );
 
-  // Oven prices chosen inside real competitor ranges:
-  // single ~£45–£70, double ~£60–£90, range ~£85–£125, aga often ~£95–£125+
   const OVEN_PRICES = useMemo(
     () => ({
       single: { label: "Single Oven (60cm)", price: 55 },
@@ -31,9 +29,7 @@ export default function Quote() {
   const HANDYMAN_RATE = 20;
   const HANDYMAN_MAX_HOURS = 4;
 
-  // -------------------------
   // ✅ TEST SERVICE (£1)
-  // -------------------------
   if (serviceKey === "test") {
     const testPrice = 1;
 
@@ -113,7 +109,6 @@ export default function Quote() {
     Math.max(0, bathrooms - 1) +
     Math.max(0, extraLivingRooms);
 
-  // ✅ RULE: +£35 for each additional room (NO LIMIT)
   const additionalCost = additionalRooms * 35;
 
   const cleaningBasePrice = cfg ? cfg.base[propertyType] : 0;
@@ -136,7 +131,6 @@ export default function Quote() {
   };
 
   // ---------- RENDER ----------
-  // Handyman
   if (serviceKey === "handyman") {
     return (
       <div className="booking-container">
@@ -175,7 +169,6 @@ export default function Quote() {
     );
   }
 
-  // Oven
   if (serviceKey === "oven") {
     return (
       <div className="booking-container">
@@ -213,7 +206,6 @@ export default function Quote() {
     );
   }
 
-  // Cleaning (deep/eot/after)
   if (!cfg) {
     return (
       <div className="booking-container">
