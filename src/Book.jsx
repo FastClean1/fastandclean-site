@@ -1,195 +1,231 @@
 import React, { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Book() {
-  const [params] = useSearchParams();
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const serviceKey = params.get("serviceKey") || params.get("service") || "deep";
-  const serviceName = params.get("serviceName") || "Service";
-  const price = Number(params.get("price") || 0);
+  // Booking data might arrive from Quote via location.state
+  const quote = location.state?.quote || null;
 
-  const summary = useMemo(() => {
-    // Mostra qualche dettaglio extra se arrivano da Quote
-    const propertyType = params.get("propertyType");
-    const bedrooms = params.get("bedrooms");
-    const bathrooms = params.get("bathrooms");
-    const extraLivingRooms = params.get("extraLivingRooms");
-    const ovenLabel = params.get("ovenLabel");
-    const hours = params.get("hours");
-
-    const lines = [];
-
-    if (serviceKey === "oven" && ovenLabel) lines.push(`Oven: ${ovenLabel}`);
-    if (serviceKey === "handyman" && hours) lines.push(`Hours: ${hours}`);
-    if (propertyType) lines.push(`Property: ${propertyType}`);
-    if (bedrooms) lines.push(`Bedrooms: ${bedrooms}`);
-    if (bathrooms) lines.push(`Bathrooms: ${bathrooms}`);
-    if (extraLivingRooms) lines.push(`Extra living rooms: ${extraLivingRooms}`);
-
-    return lines;
-  }, [params, serviceKey]);
-
-  // Customer fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [date, setDate] = useState("");
-  const [timeSlot, setTimeSlot] = useState("Morning: 9:00 AM – 2:00 PM");
+  const [timeSlot, setTimeSlot] = useState("");
   const [notes, setNotes] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errMsg, setErrMsg] = useState("");
 
-  const payNow = async () => {
-    setError("");
+  const serviceName = useMemo(() => {
+    return quote?.serviceName || quote?.service || "Service";
+  }, [quote]);
 
-    if (!fullName || !email || !phone || !address || !date) {
-      setError("Please fill in all required fields.");
+  const price = useMemo(() => {
+    // expect quote.price to be like 215 or "£215"
+    if (!quote?.price) return "";
+    const p = String(quote.price).replace("£", "").trim();
+    return p;
+  }, [quote]);
+
+  const canSubmit =
+    fullName.trim() &&
+    email.trim() &&
+    phone.trim() &&
+    address.trim() &&
+    date.trim() &&
+    timeSlot.trim();
+
+  async function handlePay(e) {
+    e.preventDefault();
+    setErrMsg("");
+
+    if (!canSubmit) {
+      setErrMsg("Please fill in all required fields.");
       return;
     }
-    if (!price || Number.isNaN(price) || price <= 0) {
-      setError("Invalid price. Go back and generate a quote again.");
-      return;
-    }
 
-    // ✅ 1) SALVA BOOKINGDATA PRIMA DI STRIPE (questa è la chiave)
-    const bookingData = {
-      serviceKey,
-      serviceName,
-      price,
-      fullName,
-      email,
-      phone,
-      address,
-      date,
-      timeSlot,
-      notes,
-      createdAt: new Date().toISOString(),
+    // Build the payload we will use BOTH for localStorage + serverless function
+    const bookingPayload = {
+      fullName: fullName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      serviceName: serviceName,
+      date: date.trim(),
+      timeSlot: timeSlot.trim(),
+      price: price || "",
+      notes: notes?.trim() || "-",
     };
 
-    localStorage.setItem("bookingData", JSON.stringify(bookingData));
-
-    setLoading(true);
-
     try {
-      // ✅ 2) crea checkout session su Netlify function
+      setLoading(true);
+
+      // ✅ Save BEFORE redirecting to Stripe
+      localStorage.setItem("bookingData", JSON.stringify(bookingPayload));
+
+      // ✅ Send EXACTLY what the function expects: { bookingPayload: {...} }
       const res = await fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          serviceKey,
-          serviceName,
-          amount: price, // in GBP "normal" (la function converte in pence)
-          customerEmail: email,
-        }),
+        body: JSON.stringify({ bookingPayload }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Failed to create checkout session");
+        setErrMsg(data?.error || "Checkout error. Please try again.");
+        setLoading(false);
+        return;
       }
 
-      const data = await res.json();
+      if (!data?.url) {
+        setErrMsg("Stripe session URL missing. Please try again.");
+        setLoading(false);
+        return;
+      }
 
-      // mi aspetto uno di questi campi dalla tua function:
-      const checkoutUrl = data?.url || data?.checkoutUrl;
-      if (!checkoutUrl) throw new Error("Checkout URL missing from server response");
-
-      // ✅ 3) vai su Stripe
-      window.location.href = checkoutUrl;
-    } catch (e) {
-      setError(String(e?.message || e));
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (err) {
+      setErrMsg("Network error. Please try again.");
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="booking-container">
-      <h1 className="booking-title">Booking</h1>
+    <div className="container" style={{ padding: "24px 0" }}>
+      <h1>Booking</h1>
 
-      <p className="section-subtitle" style={{ textAlign: "left" }}>
-        Complete your details and proceed to payment.
-      </p>
-
-      <div className="booking-form">
-        <label>Service</label>
-        <input value={serviceName} readOnly />
-
-        <label>Total price</label>
-        <input value={`£${price}`} readOnly />
-
-        {summary.length > 0 && (
-          <>
-            <label>Details</label>
-            <div style={{ fontSize: 14, color: "#6b7280" }}>
-              {summary.map((x, i) => (
-                <div key={i}>• {x}</div>
-              ))}
-            </div>
-          </>
-        )}
-
-        <hr style={{ margin: "16px 0", opacity: 0.3 }} />
-
-        <label>Full name *</label>
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
-
-        <label>Email *</label>
-        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-
-        <label>Phone *</label>
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} />
-
-        <label>Address *</label>
-        <input value={address} onChange={(e) => setAddress(e.target.value)} />
-
-        <label>Date *</label>
-        <input value={date} onChange={(e) => setDate(e.target.value)} type="date" />
-
-        <label>Time slot *</label>
-        <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
-          <option>Morning: 9:00 AM – 2:00 PM</option>
-          <option>Afternoon: 3:00 PM – 7:00 PM</option>
-        </select>
-
-        <label>Notes</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
-
-        {error && (
-          <div style={{ marginTop: 10, color: "#b91c1c", fontSize: 14 }}>
-            {error}
-          </div>
-        )}
-
-        <button className="btn-primary full-width" onClick={payNow} disabled={loading}>
-          {loading ? "Redirecting to payment..." : "Pay & Confirm"}
-        </button>
-
-        <div style={{ marginTop: 12, fontSize: 13, color: "#6b7280" }}>
-          <Link to={`/quote?service=${encodeURIComponent(serviceKey)}`}>← Back to Quote</Link>
-          {" · "}
-          <button
-            type="button"
-            onClick={() => {
-              // se vuoi annullare e pulire
-              localStorage.removeItem("bookingData");
-              navigate("/");
-            }}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#6b7280",
-              textDecoration: "underline",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            Cancel and go Home
+      {!quote && (
+        <div className="card" style={{ padding: 16, marginBottom: 16 }}>
+          <p style={{ margin: 0 }}>
+            No quote found. Please go back and generate a quote first.
+          </p>
+          <button className="btn-outline" onClick={() => navigate("/quote")}>
+            Back to Quote
           </button>
         </div>
+      )}
+
+      <div className="card" style={{ padding: 16, marginBottom: 16 }}>
+        <h3 style={{ marginTop: 0 }}>{serviceName}</h3>
+        <p style={{ margin: 0 }}>
+          <strong>Price:</strong> {price ? `£${price}` : "—"}
+        </p>
       </div>
+
+      <form className="card" style={{ padding: 16 }} onSubmit={handlePay}>
+        <h3 style={{ marginTop: 0 }}>Customer details</h3>
+
+        <div className="form-row">
+          <label>
+            Full name *
+            <input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              placeholder="Full name"
+            />
+          </label>
+
+          <label>
+            Email *
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              type="email"
+              placeholder="Email"
+            />
+          </label>
+        </div>
+
+        <div className="form-row">
+          <label>
+            Phone *
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              placeholder="Phone"
+            />
+          </label>
+
+          <label>
+            Address *
+            <input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              placeholder="Full address"
+            />
+          </label>
+        </div>
+
+        <div className="form-row">
+          <label>
+            Date *
+            <input
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+              placeholder="DD/MM/YYYY"
+            />
+          </label>
+
+          <label>
+            Time slot *
+            <input
+              value={timeSlot}
+              onChange={(e) => setTimeSlot(e.target.value)}
+              required
+              placeholder="Morning / Afternoon etc."
+            />
+          </label>
+        </div>
+
+        <label>
+          Notes
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Optional notes..."
+          />
+        </label>
+
+        {errMsg && (
+          <div style={{ color: "crimson", marginTop: 12 }}>{errMsg}</div>
+        )}
+
+        <button
+          className="btn-primary"
+          type="submit"
+          disabled={loading || !quote}
+          style={{ marginTop: 14, width: "100%" }}
+        >
+          {loading ? "Redirecting..." : "Pay & Confirm"}
+        </button>
+
+        <div style={{ marginTop: 10, fontSize: 14 }}>
+          ←{" "}
+          <span
+            style={{ cursor: "pointer", textDecoration: "underline" }}
+            onClick={() => navigate("/quote")}
+          >
+            Back to Quote
+          </span>{" "}
+          ·{" "}
+          <span
+            style={{ cursor: "pointer", textDecoration: "underline" }}
+            onClick={() => navigate("/")}
+          >
+            Cancel and go Home
+          </span>
+        </div>
+      </form>
     </div>
   );
 }
