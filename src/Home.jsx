@@ -38,13 +38,11 @@ export default function Home() {
         "Repairs, assembly, minor jobs. £20/hour. Choose 1–4 hours maximum.",
       priceFrom: "£20/hour",
     },
-
-    // ✅ TEST SERVICE £1 (NUOVO, REALE)
     {
       id: "test",
       name: "Test Service (£1)",
       description:
-        "Temporary service used to test booking, Stripe payment and confirmation emails.",
+        "Internal test to validate the full booking + Stripe flow end-to-end.",
       priceFrom: "£1",
     },
   ];
@@ -56,12 +54,12 @@ export default function Home() {
         <div className="container hero-content">
           <h1 className="hero-title">Home Services</h1>
           <p className="hero-subtitle">
-            Professional cleaning, oven cleaning and handyman services across Cambridge & London.
+            Professional cleaning, oven cleaning and handyman services across Cambridge &amp; London.
             Transparent pricing, easy booking.
           </p>
 
           <div className="hero-badges">
-            <span>✅ Licensed & Insured</span>
+            <span>✅ Licensed &amp; Insured</span>
             <span>⭐ Satisfaction Guaranteed</span>
           </div>
 
@@ -121,7 +119,7 @@ export default function Home() {
             <ul className="contact-list">
               <li><strong>Phone:</strong> 07918 646714</li>
               <li><strong>Email:</strong> fastandcleanoffice@gmail.com</li>
-              <li><strong>Service Areas:</strong> Cambridge, London & nearby towns</li>
+              <li><strong>Service Areas:</strong> Cambridge, London &amp; nearby towns</li>
             </ul>
 
             <div className="testimonials">
