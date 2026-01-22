@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 
 export default function Book() {
   const [params] = useSearchParams();
 
+  // --- Service basics ---
   const serviceKey = params.get("serviceKey") || "";
   const serviceName = params.get("serviceName") || "Service";
 
-  // Cleaning fields
+  // --- Cleaning fields (optional, shown in summary) ---
   const propertyType = params.get("propertyType") || "";
   const bedrooms = params.get("bedrooms") || "";
   const bathrooms = params.get("bathrooms") || "";
@@ -16,21 +17,22 @@ export default function Book() {
   const basePrice = params.get("basePrice") || "";
   const additionalCost = params.get("additionalCost") || "";
 
-  // Handyman fields
+  // --- Handyman fields (optional) ---
   const hours = params.get("hours") || "";
   const rate = params.get("rate") || "";
 
-  // Oven fields
+  // --- Oven fields (optional) ---
   const ovenLabel = params.get("ovenLabel") || "";
   const ovenType = params.get("ovenType") || "";
 
+  // --- Total price (required) ---
   const price = params.get("price") || "";
 
-  // Date + time slot
+  // --- Date + time slot (required) ---
   const [date, setDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("Morning: 9:00 AM – 2:00 PM");
 
-  // Customer details
+  // --- Customer details (required) ---
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -40,6 +42,7 @@ export default function Book() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Minimum date = today
   const todayISO = useMemo(() => {
     const d = new Date();
     const yyyy = d.getFullYear();
@@ -47,6 +50,11 @@ export default function Book() {
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   }, []);
+
+  const priceNumber = useMemo(() => {
+    const n = Number(price);
+    return Number.isFinite(n) ? n : 0;
+  }, [price]);
 
   const renderServiceSummary = () => {
     if (serviceKey === "handyman") {
@@ -78,6 +86,7 @@ export default function Book() {
       );
     }
 
+    // Default: cleaning
     return (
       <>
         <p>
@@ -91,8 +100,8 @@ export default function Book() {
           <strong>Base price:</strong> £{basePrice}
         </p>
         <p>
-          <strong>Additional rooms:</strong> {additionalRooms} · <strong>Additional cost:</strong> £
-          {additionalCost}
+          <strong>Additional rooms:</strong> {additionalRooms} ·{" "}
+          <strong>Additional cost:</strong> £{additionalCost}
         </p>
       </>
     );
@@ -101,15 +110,24 @@ export default function Book() {
   const proceedToStripe = async () => {
     setError("");
 
+    // Validate required booking fields
     if (!date || !timeSlot || !fullName || !phone || !email || !address) {
       setError("Please fill all required fields including date and time slot.");
       return;
     }
 
-    // Booking object (salvato per /success)
+    // Validate price
+    if (!priceNumber || priceNumber <= 0) {
+      setError("Invalid price. Please go back and generate a quote again.");
+      return;
+    }
+
+    // Build a single booking payload (saved for Success.jsx to email via EmailJS)
     const booking = {
       serviceKey,
       serviceName,
+
+      // quote details
       propertyType,
       bedrooms,
       bathrooms,
@@ -119,22 +137,29 @@ export default function Book() {
       additionalCost,
       hours,
       rate,
-      ovenLabel,
       ovenType,
-      price,
+      ovenLabel,
+
+      // booking details
+      price: String(priceNumber),
       date,
       timeSlot,
+
+      // customer details
       fullName,
       phone,
       email,
       address,
       notes,
+
       createdAt: new Date().toISOString(),
     };
 
-    // Salva in sessionStorage così Success.jsx può mandare l'email
+    // Save locally so /success can send EmailJS confirmation
     sessionStorage.setItem("lastBooking", JSON.stringify(booking));
-    // Reset flag per evitare “email già inviata” da una prenotazione precedente
+
+    // Reset “already sent” flag so a new paid session can send an email
+    // Success.jsx should set this to the Stripe session_id after sending.
     localStorage.removeItem("emailSentForSession");
 
     setLoading(true);
@@ -147,10 +172,12 @@ export default function Book() {
       });
 
       const data = await res.json();
+
       if (!res.ok || !data?.url) {
-        throw new Error(data?.error || "Failed to create Stripe session.");
+        throw new Error(data?.error || data?.message || "Payment error. Please try again.");
       }
 
+      // Redirect to Stripe Checkout
       window.location.href = data.url;
     } catch (e) {
       setLoading(false);
@@ -164,15 +191,26 @@ export default function Book() {
 
       <div className="booking-summary">
         <h2 style={{ marginTop: 0 }}>Booking Summary</h2>
+
         {renderServiceSummary()}
+
         <p style={{ marginTop: 10 }}>
-          <strong>Total:</strong> £{price}
+          <strong>Total:</strong> £{priceNumber}
         </p>
+
+        <div style={{ marginTop: 10, fontSize: 13, color: "#6b7280" }}>
+          <Link to="/quote?service=deep">← Back to quote</Link>
+        </div>
       </div>
 
       <div className="booking-form">
         <label>Preferred Date *</label>
-        <input type="date" min={todayISO} value={date} onChange={(e) => setDate(e.target.value)} />
+        <input
+          type="date"
+          min={todayISO}
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
 
         <label>Preferred Time Slot *</label>
         <select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)}>
