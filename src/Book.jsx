@@ -20,191 +20,189 @@ export default function Book() {
   const [errMsg, setErrMsg] = useState("");
 
   const serviceName = useMemo(() => {
-    return quote?.serviceName || quote?.service || "Service";
+    return (
+      quote?.serviceName ||
+      quote?.service ||
+      quote?.title ||
+      "Cleaning Service"
+    );
   }, [quote]);
 
   const price = useMemo(() => {
-    // expect quote.price to be like 215 or "£215"
-    if (!quote?.price) return "";
-    const p = String(quote.price).replace("£", "").trim();
-    return p;
-  }, [quote]);
+    // prova a leggere vari formati
+    const p =
+      quote?.price ??
+      quote?.total ??
+      quote?.amount ??
+      quote?.finalPrice ??
+      0;
 
-  const canSubmit =
-    fullName.trim() &&
-    email.trim() &&
-    phone.trim() &&
-    address.trim() &&
-    date.trim() &&
-    timeSlot.trim();
+    // se è stringa tipo "£120" => estrai numero
+    if (typeof p === "string") {
+      const num = Number(p.replace(/[^0-9.]/g, ""));
+      return Number.isFinite(num) ? num : 0;
+    }
+
+    return Number.isFinite(p) ? Number(p) : 0;
+  }, [quote]);
 
   async function handlePay(e) {
     e.preventDefault();
     setErrMsg("");
 
-    if (!canSubmit) {
-      setErrMsg("Please fill in all required fields.");
+    if (!quote) {
+      setErrMsg("Missing quote data. Go back to Quote and try again.");
       return;
     }
 
-    // Build the payload we will use BOTH for localStorage + serverless function
-    const bookingPayload = {
-      fullName: fullName.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      address: address.trim(),
-      serviceName: serviceName,
-      date: date.trim(),
-      timeSlot: timeSlot.trim(),
-      price: price || "",
-      notes: notes?.trim() || "-",
-    };
+    if (!fullName || !email || !phone || !address || !date || !timeSlot) {
+      setErrMsg("Please fill all required fields.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      setLoading(true);
+      const bookingData = {
+        fullName,
+        email,
+        phone,
+        address,
+        date,
+        timeSlot,
+        notes: notes || "-",
+        serviceName,
+        price,
+        // puoi aggiungere altri campi del quote se ti servono
+        quote: quote || {},
+      };
 
-      // ✅ Save BEFORE redirecting to Stripe
-      localStorage.setItem("bookingData", JSON.stringify(bookingPayload));
+      // ✅ SALVA PRIMA di andare su Stripe
+      localStorage.setItem("bookingData", JSON.stringify(bookingData));
 
-      // ✅ Send EXACTLY what the function expects: { bookingPayload: {...} }
       const res = await fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingPayload }),
+        // ✅ la function deve ricevere "booking"
+        body: JSON.stringify({ booking: bookingData }),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setErrMsg(data?.error || "Checkout error. Please try again.");
+        setErrMsg(data?.error || "Checkout session error.");
         setLoading(false);
         return;
       }
 
-      if (!data?.url) {
-        setErrMsg("Stripe session URL missing. Please try again.");
+      const checkoutUrl = data?.url || data?.checkoutUrl;
+      if (!checkoutUrl) {
+        setErrMsg("Checkout URL missing in response.");
         setLoading(false);
         return;
       }
 
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
+      window.location.href = checkoutUrl;
     } catch (err) {
-      setErrMsg("Network error. Please try again.");
+      setErrMsg(err?.message || "Something went wrong.");
       setLoading(false);
     }
   }
 
   return (
-    <div className="container" style={{ padding: "24px 0" }}>
-      <h1>Booking</h1>
+    <div style={{ maxWidth: 650, margin: "30px auto", padding: 16 }}>
+      <h2>Booking Details</h2>
 
-      {!quote && (
-        <div className="card" style={{ padding: 16, marginBottom: 16 }}>
-          <p style={{ margin: 0 }}>
-            No quote found. Please go back and generate a quote first.
-          </p>
-          <button className="btn-outline" onClick={() => navigate("/quote")}>
-            Back to Quote
-          </button>
+      {!quote ? (
+        <div style={{ padding: 12, background: "#ffecec", borderRadius: 8 }}>
+          Missing quote data. Go back to Quote and try again.
+        </div>
+      ) : (
+        <div style={{ padding: 12, background: "#f6f6f6", borderRadius: 8 }}>
+          <b>Service:</b> {serviceName} <br />
+          <b>Price:</b> £{price}
         </div>
       )}
 
-      <div className="card" style={{ padding: 16, marginBottom: 16 }}>
-        <h3 style={{ marginTop: 0 }}>{serviceName}</h3>
-        <p style={{ margin: 0 }}>
-          <strong>Price:</strong> {price ? `£${price}` : "—"}
-        </p>
-      </div>
+      <form onSubmit={handlePay} style={{ marginTop: 16 }}>
+        <label>Full name *</label>
+        <input
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          required
+        />
 
-      <form className="card" style={{ padding: 16 }} onSubmit={handlePay}>
-        <h3 style={{ marginTop: 0 }}>Customer details</h3>
+        <label>Email *</label>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          type="email"
+          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          required
+        />
 
-        <div className="form-row">
-          <label>
-            Full name *
-            <input
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              placeholder="Full name"
-            />
-          </label>
+        <label>Phone *</label>
+        <input
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          required
+        />
 
-          <label>
-            Email *
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              type="email"
-              placeholder="Email"
-            />
-          </label>
-        </div>
+        <label>Address *</label>
+        <input
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          required
+        />
 
-        <div className="form-row">
-          <label>
-            Phone *
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              placeholder="Phone"
-            />
-          </label>
+        <label>Date *</label>
+        <input
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          placeholder="DD/MM/YYYY"
+          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          required
+        />
 
-          <label>
-            Address *
-            <input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              required
-              placeholder="Full address"
-            />
-          </label>
-        </div>
+        <label>Time slot *</label>
+        <input
+          value={timeSlot}
+          onChange={(e) => setTimeSlot(e.target.value)}
+          placeholder="Morning: 9:00 AM – 2:00 PM"
+          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          required
+        />
 
-        <div className="form-row">
-          <label>
-            Date *
-            <input
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              placeholder="DD/MM/YYYY"
-            />
-          </label>
+        <label>Notes</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          rows={4}
+        />
 
-          <label>
-            Time slot *
-            <input
-              value={timeSlot}
-              onChange={(e) => setTimeSlot(e.target.value)}
-              required
-              placeholder="Morning / Afternoon etc."
-            />
-          </label>
-        </div>
-
-        <label>
-          Notes
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Optional notes..."
-          />
-        </label>
-
-        {errMsg && (
-          <div style={{ color: "crimson", marginTop: 12 }}>{errMsg}</div>
-        )}
+        {errMsg ? (
+          <div style={{ color: "crimson", marginBottom: 10 }}>
+            {errMsg}
+          </div>
+        ) : null}
 
         <button
-          className="btn-primary"
           type="submit"
           disabled={loading || !quote}
-          style={{ marginTop: 14, width: "100%" }}
+          style={{
+            width: "100%",
+            padding: 12,
+            borderRadius: 10,
+            border: "none",
+            background: "#1d4ed8",
+            color: "white",
+            fontSize: 16,
+            cursor: "pointer",
+          }}
         >
           {loading ? "Redirecting..." : "Pay & Confirm"}
         </button>
