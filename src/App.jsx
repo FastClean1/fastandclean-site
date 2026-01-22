@@ -1,5 +1,6 @@
 import React from "react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
+
 import Home from "./Home.jsx";
 import Quote from "./Quote.jsx";
 import Book from "./Book.jsx";
@@ -7,40 +8,27 @@ import Success from "./Success.jsx";
 import Cancel from "./Cancel.jsx";
 
 export default function App() {
-  const navigate = useNavigate();
-
   return (
-    <>
+    <div className="app-shell">
       <header className="site-header">
-        <div className="container header-inner">
-          <div className="logo">
-            <Link to="/">Fast & Clean Ltd</Link>
-          </div>
+        <div className="container header-row">
+          <Link to="/" className="brand">
+            Fast &amp; Clean Ltd
+          </Link>
 
-          <div className="nav-menu">
+          <div className="header-right">
             <select
+              className="menu-select"
+              defaultValue=""
               onChange={(e) => {
                 const v = e.target.value;
-                if (v.startsWith("#")) {
-                  navigate("/");
-                  setTimeout(() => {
-                    const el = document.querySelector(v);
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }, 50);
-                } else {
-                  navigate(v);
-                }
+                if (v) window.location.href = v;
               }}
-              defaultValue=""
             >
-              <option value="" disabled>
-                Menu
-              </option>
-              <option value="/">Home</option>
-              <option value="/quote?service=deep">Get Quote</option>
-              <option value="/quote?service=test">Test Service (£1)</option>
-              <option value="/book">Book Online</option>
-              <option value="#contact">Contact</option>
+              <option value="">Menu</option>
+              <option value="/#services">Services</option>
+              <option value="/#contact">Contact</option>
+              <option value="/quote?service=deep">Get a Quote</option>
             </select>
           </div>
         </div>
@@ -58,9 +46,9 @@ export default function App() {
 
       <footer className="site-footer">
         <div className="container">
-          © {new Date().getFullYear()} Fast & Clean Ltd — Based in Cambridge & London.
+          © {new Date().getFullYear()} Fast &amp; Clean Ltd — Based in Cambridge &amp; London.
         </div>
       </footer>
-    </>
+    </div>
   );
 }
