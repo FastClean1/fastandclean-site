@@ -5,18 +5,12 @@ export default function Cancel() {
   return (
     <div className="booking-container">
       <h1 className="booking-title">Payment cancelled</h1>
-
       <div className="booking-summary">
-        <p>No worries — you can try again.</p>
+        <p>Your payment was cancelled. You can go back and try again.</p>
 
-        <div style={{ marginTop: 14 }}>
-          <Link className="btn-primary" to="/book">
-            Go back to booking
-          </Link>
-          <div style={{ marginTop: 10 }}>
-            <Link to="/">← Back to Home</Link>
-          </div>
-        </div>
+        <Link to="/" className="btn-primary" style={{ display: "inline-block", marginTop: 12 }}>
+          Back to Home
+        </Link>
       </div>
     </div>
   );
