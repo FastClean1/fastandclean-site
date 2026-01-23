@@ -1,82 +1,31 @@
-// src/Home.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const PHONE_DISPLAY = "07777174561";
-  const PHONE_TEL = "+447777174561";
-  const WHATSAPP_LINK = "https://wa.me/447777174561";
-  const GOOGLE_REVIEW_URL = "https://g.page/r/CdhuI-exB04dEAE/review";
-
   const services = [
     {
       id: "deep",
       name: "Deep Cleaning",
       description:
-        "Deep, detailed cleaning for kitchens, bathrooms and living areas. Pricing based on property size.",
+        "A deep, detailed clean designed to remove ingrained dirt from your home.",
       priceFrom: "From £185 (Flat) / £260 (House)",
-      includedLink: "/included-deep",
+      infoLink: "/deep-cleaning",
     },
     {
       id: "eot",
       name: "End of Tenancy Cleaning",
       description:
-        "End of tenancy clean with clear pricing based on property size. Ideal for tenants, landlords & agencies.",
+        "A full professional clean for empty properties when moving in or out.",
       priceFrom: "From £215 (Flat) / £290 (House)",
-      includedLink: "/included-eot",
+      infoLink: "/end-of-tenancy",
     },
     {
       id: "after",
       name: "After Building Cleaning",
       description:
-        "Post-construction / after building clean. Remove dust and building residue with professional results.",
+        "Remove dust and residue after renovations or building work.",
       priceFrom: "From £219 (Flat) / £294 (House)",
-      includedLink: "/included-after",
-    },
-    {
-      id: "oven",
-      name: "Oven Cleaning",
-      description:
-        "Choose your oven type (single, double, range, Aga) and book instantly. Pricing is fixed by oven type.",
-      priceFrom: "From £55",
-      includedLink: null,
-    },
-    {
-      id: "handyman",
-      name: "Handyman",
-      description:
-        "Repairs, assembly, minor jobs. £20/hour. Choose 1–4 hours maximum.",
-      priceFrom: "£20/hour",
-      includedLink: null,
-    },
-    {
-      id: "test",
-      name: "Test Service (£1)",
-      description:
-        "Real service used to test the full booking + Stripe flow end-to-end.",
-      priceFrom: "£1",
-      includedLink: null,
-    },
-  ];
-
-  const reviews = [
-    {
-      name: "Customer",
-      when: "Google Review",
-      stars: "★★★★★",
-      text: "Great service — fast, professional and very thorough. Would book again.",
-    },
-    {
-      name: "Customer",
-      when: "Google Review",
-      stars: "★★★★★",
-      text: "End of tenancy clean was perfect. Landlord was happy and deposit returned.",
-    },
-    {
-      name: "Customer",
-      when: "Google Review",
-      stars: "★★★★★",
-      text: "Very reliable team. Communication was clear and results were excellent.",
+      infoLink: "/after-building",
     },
   ];
 
@@ -85,37 +34,43 @@ export default function Home() {
       {/* HERO */}
       <section className="hero">
         <div className="container hero-content">
-          <div className="hero-kicker">Fast & Clean Ltd — Cambridge & London</div>
+          <span className="hero-kicker">Cambridge & London</span>
 
-          <h1 className="hero-title">Home Services</h1>
+          <h1 className="hero-title">
+            Professional Cleaning & Home Services
+          </h1>
 
           <p className="hero-subtitle">
-            Professional cleaning, oven cleaning and handyman services across Cambridge & London.
-            Transparent pricing, easy booking.
+            Transparent pricing. Easy booking. Trusted local professionals for
+            cleaning, ovens and handyman services.
           </p>
 
-          <div className="hero-badges">
-            <span>✅ Licensed & Insured</span>
-            <span>⭐ Satisfaction Guaranteed</span>
-          </div>
-
           <div className="hero-actions">
-            <a href="#services" className="btn-primary">View Services</a>
-            <a href="#contact" className="btn-outline">Contact</a>
+            <a href="#services" className="btn-primary">
+              View Services
+            </a>
+            <a
+              href="https://wa.me/447777174561"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline"
+            >
+              WhatsApp Us
+            </a>
           </div>
 
           <div className="hero-trust">
             <div className="trust-item">
-              <strong>10+ years</strong>
-              Experience
+              <strong>✓ Insured</strong>
+              Professional & reliable
             </div>
             <div className="trust-item">
-              <strong>Instant quotes</strong>
-              No waiting
+              <strong>✓ Guaranteed</strong>
+              48h complaint window
             </div>
             <div className="trust-item">
-              <strong>Support</strong>
-              Fast response
+              <strong>✓ Local Team</strong>
+              Cambridge & London
             </div>
           </div>
         </div>
@@ -124,9 +79,9 @@ export default function Home() {
       {/* SERVICES */}
       <section id="services" className="services-section">
         <div className="container">
-          <h2 className="section-title">Our Services</h2>
+          <h2 className="section-title">Our Cleaning Services</h2>
           <p className="section-subtitle">
-            Choose a service to get an instant quote and continue to booking.
+            Choose a service to get an instant quote or read what’s included.
           </p>
 
           <div className="services-grid">
@@ -135,26 +90,28 @@ export default function Home() {
                 <div className="service-body">
                   <h3>{s.name}</h3>
                   <p>{s.description}</p>
-
                   <div className="service-meta">
                     <span className="price">{s.priceFrom}</span>
                   </div>
-
-                  {/* ✅ What’s included link only for Deep/EOT/After */}
-                  {s.includedLink && (
-                    <div style={{ marginTop: 10, fontSize: 13 }}>
-                      <Link to={s.includedLink} style={{ textDecoration: "underline" }}>
-                        What’s included
-                      </Link>
-                    </div>
-                  )}
                 </div>
 
                 <Link
-                  to={`/quote?service=${encodeURIComponent(s.id)}`}
+                  to={`/quote?service=${s.id}`}
                   className="btn-primary full-width"
                 >
-                  Book / Get Quote
+                  Get Quote
+                </Link>
+
+                <Link
+                  to={s.infoLink}
+                  style={{
+                    marginTop: 10,
+                    textAlign: "center",
+                    fontSize: 13,
+                    textDecoration: "underline",
+                  }}
+                >
+                  What’s included
                 </Link>
               </div>
             ))}
@@ -165,29 +122,14 @@ export default function Home() {
       {/* REVIEWS */}
       <section className="reviews-section">
         <div className="container">
-          <h2 className="section-title">Reviews</h2>
+          <h2 className="section-title">Customer Reviews</h2>
           <p className="section-subtitle">
-            Real feedback helps new customers feel confident booking.
+            Real feedback from our customers.
           </p>
-
-          <div className="reviews-grid">
-            {reviews.map((r, idx) => (
-              <div className="review-card" key={idx}>
-                <div className="review-top">
-                  <div className="review-meta">
-                    <strong>{r.name}</strong>
-                    <span>{r.when}</span>
-                  </div>
-                  <div className="review-stars">{r.stars}</div>
-                </div>
-                <p className="review-text">{r.text}</p>
-              </div>
-            ))}
-          </div>
 
           <div className="reviews-cta">
             <a
-              href={GOOGLE_REVIEW_URL}
+              href="https://g.page/r/CdhuI-exB04dEAE/review"
               target="_blank"
               rel="noopener noreferrer"
               className="google-review-btn"
@@ -202,82 +144,33 @@ export default function Home() {
       <section id="contact" className="contact-section">
         <div className="container contact-grid">
           <div className="contact-info">
-            <h2 className="section-title">Get In Touch</h2>
+            <h2 className="section-title">Contact Us</h2>
             <p className="section-subtitle">
-              Ready to book or have questions? We’re here to help.
+              Questions, changes or special requests? Get in touch.
             </p>
 
             <ul className="contact-list">
               <li>
-                <strong>Phone:</strong>{" "}
-                <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
+                <strong>Phone:</strong> 07777 174561
               </li>
               <li>
                 <strong>Email:</strong> fastandcleanoffice@gmail.com
               </li>
               <li>
-                <strong>Service Areas:</strong> Cambridge, London & nearby towns
+                <strong>Areas:</strong> Cambridge, London & nearby towns
               </li>
             </ul>
 
             <div className="contact-note">
-              Fastest way to reach us: WhatsApp or phone.
-            </div>
-
-            <div
-              className="hero-actions"
-              style={{ justifyContent: "flex-start", marginTop: 14 }}
-            >
-              <a
-                className="btn-primary"
-                href={WHATSAPP_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                WhatsApp Us
-              </a>
-
-              <a className="btn-outline" href={`tel:${PHONE_TEL}`}>
-                Call {PHONE_DISPLAY}
-              </a>
-            </div>
-
-            <div style={{ marginTop: 14 }}>
-              <a
-                href={GOOGLE_REVIEW_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="google-review-btn"
-              >
-                ⭐ Leave a Google Review
-              </a>
+              <strong>Need to change or cancel a booking?</strong>
+              <br />
+              Please read our{" "}
+              <Link to="/refund-policy" style={{ textDecoration: "underline" }}>
+                Refund & Cancellation Policy
+              </Link>
+              .
             </div>
           </div>
-
-          <form
-            className="contact-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Message sent! We’ll get back to you shortly.");
-            }}
-          >
-            <h3>Send Us a Message</h3>
-
-            <div className="form-row">
-              <input required placeholder="Full Name" />
-              <input required type="email" placeholder="Email Address" />
-            </div>
-
-            <textarea required placeholder="Your message..." />
-
-            <button className="btn-primary full-width" type="submit">
-              Send Message
-            </button>
-
-            <p className="form-disclaimer">
-              By submitting, you agree to be contacted about your enquiry.
-            </p>
-          </form>
         </div>
       </section>
     </>
