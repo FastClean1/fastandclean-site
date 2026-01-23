@@ -1,79 +1,91 @@
-const Stripe = require("stripe");
+import Stripe from "stripe";
 
-function json(statusCode, body) {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Allow-Methods": "POST,OPTIONS",
-    },
-    body: JSON.stringify(body),
-  };
-}
-
-exports.handler = async (event) => {
-  if (event.httpMethod === "OPTIONS") return json(200, { ok: true });
-  if (event.httpMethod !== "POST") return json(405, { error: "Method Not Allowed" });
-
+export async function handler(event) {
   try {
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) return json(500, { error: "Missing STRIPE_SECRET_KEY in environment variables." });
-
-    const stripe = new Stripe(key);
-
-    const payload = JSON.parse(event.body || "{}");
-    const booking = payload.booking;
-
-    if (!booking) return json(400, { error: "Missing booking payload." });
-
-    const amount = Math.round(Number(booking.price || 0) * 100);
-    if (!amount || amount < 50) {
-      return json(400, { error: "Invalid price. Must be at least £0.50." });
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
     }
 
-    // base URL del sito
-    const origin =
-      event.headers.origin ||
-      `https://${event.headers.host}` ||
-      "https://fastandcleanltd.netlify.app";
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Missing STRIPE_SECRET_KEY" }),
+      };
+    }
+
+    const stripe = new Stripe(stripeSecretKey);
+
+    let payload = {};
+    try {
+      payload = JSON.parse(event.body || "{}");
+    } catch {
+      payload = {};
+    }
+
+    const booking = payload.booking;
+    if (!booking) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing booking payload." }),
+      };
+    }
+
+    const price = Number(booking.price || 0);
+    if (!price || Number.isNaN(price) || price <= 0) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Invalid price." }),
+      };
+    }
+
+    const siteUrl =
+      process.env.URL ||
+      process.env.DEPLOY_PRIME_URL ||
+      "http://localhost:5173";
+
+    const successUrl = `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${siteUrl}/cancel`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      customer_email: booking.email || undefined,
-
       line_items: [
         {
           price_data: {
             currency: "gbp",
             product_data: {
               name: booking.serviceName || "Service",
-              description: `${booking.date || ""} | ${booking.timeSlot || ""}`.trim(),
             },
-            unit_amount: amount,
+            unit_amount: Math.round(price * 100),
           },
           quantity: 1,
         },
       ],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
 
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/cancel`,
-
-      // Metadati utili (non mandano email, ma ti aiutano a vedere info dentro Stripe)
+      // utile per riconciliazione
       metadata: {
-        serviceKey: booking.serviceKey || "",
-        serviceName: booking.serviceName || "",
-        date: booking.date || "",
-        timeSlot: booking.timeSlot || "",
-        customerName: booking.fullName || "",
-        phone: booking.phone || "",
+        serviceKey: String(booking.serviceKey || ""),
+        serviceName: String(booking.serviceName || ""),
+        customerEmail: String(booking.email || ""),
+        customerName: String(booking.fullName || ""),
+        date: String(booking.date || ""),
+        timeSlot: String(booking.timeSlot || ""),
       },
     });
 
-    return json(200, { url: session.url });
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ url: session.url }),
+    };
   } catch (err) {
-    return json(500, { error: err.message || String(err) });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: err?.message || "Server error",
+      }),
+    };
   }
-};
+}
