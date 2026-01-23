@@ -8,6 +8,11 @@ import Book from "./Book.jsx";
 import Success from "./Success.jsx";
 import Cancel from "./Cancel.jsx";
 
+// ✅ New “What’s Included” pages
+import EOT from "./EOT.jsx";
+import DeepCleaning from "./DeepCleaning.jsx";
+import AfterBuilding from "./AfterBuilding.jsx";
+
 export default function App() {
   const navigate = useNavigate();
 
@@ -29,6 +34,14 @@ export default function App() {
                 const v = e.target.value;
                 if (!v) return;
 
+                // External link (WhatsApp)
+                if (v.startsWith("http")) {
+                  window.open(v, "_blank", "noopener,noreferrer");
+                  e.target.value = "";
+                  return;
+                }
+
+                // Anchor link
                 if (v.startsWith("#")) {
                   navigate("/");
                   setTimeout(() => {
@@ -39,7 +52,6 @@ export default function App() {
                   navigate(v);
                 }
 
-                // reset dropdown label back to placeholder
                 e.target.value = "";
               }}
               defaultValue=""
@@ -47,9 +59,15 @@ export default function App() {
               <option value="" disabled>
                 Menu
               </option>
+
               <option value="/">Home</option>
               <option value="/quote?service=deep">Get Quote</option>
               <option value="/book">Book Online</option>
+
+              <option value="/included-eot">EOT: What’s included</option>
+              <option value="/included-deep">Deep: What’s included</option>
+              <option value="/included-after">After Building: What’s included</option>
+
               <option value={WHATSAPP_LINK}>WhatsApp</option>
               <option value="#contact">Contact</option>
             </select>
@@ -59,11 +77,19 @@ export default function App() {
 
       <main>
         <Routes>
+          {/* Main */}
           <Route path="/" element={<Home />} />
           <Route path="/quote" element={<Quote />} />
           <Route path="/book" element={<Book />} />
+
+          {/* Stripe */}
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
+
+          {/* ✅ What’s Included pages */}
+          <Route path="/included-eot" element={<EOT />} />
+          <Route path="/included-deep" element={<DeepCleaning />} />
+          <Route path="/included-after" element={<AfterBuilding />} />
         </Routes>
       </main>
 
