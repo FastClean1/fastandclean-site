@@ -1,148 +1,135 @@
-// src/RefundPolicy.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
 export default function RefundPolicy() {
-  const PHONE_DISPLAY = "07777174561";
-  const PHONE_TEL = "+447777174561";
-  const WHATSAPP_LINK = "https://wa.me/447777174561";
-
   return (
-    <div className="container" style={{ paddingTop: 28, paddingBottom: 56 }}>
-      <div style={{ marginBottom: 16 }}>
-        <Link to="/" style={{ textDecoration: "underline" }}>
-          ← Back to Home
-        </Link>
-      </div>
+    <section className="info-page">
+      <div className="container">
+        <h1 className="section-title">Refund & Complaints Policy</h1>
 
-      <h1 className="section-title" style={{ textAlign: "left" }}>
-        Refund & Cancellation Policy
-      </h1>
+        <p className="section-subtitle">
+          This policy explains cancellations, rescheduling, complaints and what
+          happens if something isn’t done correctly. By booking with Fast & Clean
+          Ltd you agree to the terms below.
+        </p>
 
-      <p className="section-subtitle" style={{ textAlign: "left", marginLeft: 0 }}>
-        This policy explains cancellations, rescheduling, complaints and how we handle service issues.
-        Booking with Fast & Clean Ltd means you agree to the terms below.
-      </p>
+        <div className="contact-note">
+          <strong>Important:</strong> “Refund policy” does <strong>not</strong>{" "}
+          mean customers automatically receive money back simply by making a
+          complaint. Our standard resolution is a <strong>free re-clean</strong>{" "}
+          of the affected areas, within the conditions below.
+        </div>
 
-      <div className="booking-summary" style={{ background: "#ffffff" }}>
-        <h2 style={{ marginTop: 0 }}>Policy (single section)</h2>
+        <h3>1) Complaints & Free Re-clean (48 hours)</h3>
+        <p>
+          After the service is completed, the customer has{" "}
+          <strong>48 hours</strong> to report any issues. If the complaint is
+          valid, we will arrange a <strong>second visit for free</strong> to
+          re-clean or fix the parts that were not cleaned properly.
+        </p>
+        <ul className="info-list">
+          <li>
+            Complaints must be sent within <strong>48 hours</strong> of job
+            completion.
+          </li>
+          <li>
+            The free re-clean covers only the affected areas, not a full new
+            service.
+          </li>
+          <li>
+            If no complaint is made within 48 hours, the service is considered
+            accepted and <strong>no refund</strong> will be issued.
+          </li>
+        </ul>
 
-        <div style={{ color: "#374151", lineHeight: 1.7, fontSize: 14 }}>
-          <p style={{ marginTop: 0 }}>
-            <strong>Important:</strong> “Refund policy” does not mean an automatic refund for any complaint.
-            Our first solution is always to fix the issue by providing a free re-clean where appropriate.
-          </p>
+        <h3>2) Cancellations</h3>
+        <p>
+          If the customer cancels a booking after payment, fees apply depending
+          on how late the cancellation happens:
+        </p>
+        <ul className="info-list">
+          <li>
+            Cancelled <strong>less than 24 hours</strong> before the booking:{" "}
+            <strong>£20</strong> will be deducted from the amount paid.
+          </li>
+          <li>
+            Cancelled on the <strong>same day</strong> of the booking:{" "}
+            <strong>£50</strong> will be deducted from the amount paid.
+          </li>
+        </ul>
 
-          <h3 style={{ marginTop: 16, marginBottom: 8 }}>1) Cancellations</h3>
-          <ul style={{ marginTop: 0 }}>
-            <li>
-              If you cancel <strong>more than 24 hours</strong> before the booking time, we will deduct{" "}
-              <strong>£20</strong> from the amount paid.
-            </li>
-            <li>
-              If you cancel <strong>on the same day</strong> as the booking (including last-minute cancellations),
-              we will deduct <strong>£50</strong> from the amount paid.
-            </li>
-          </ul>
+        <h3>3) Rescheduling (Change date)</h3>
+        <p>
+          Customers can request to change the booking date up to{" "}
+          <strong>48 hours</strong> before the scheduled booking.
+        </p>
+        <ul className="info-list">
+          <li>
+            Reschedule requested <strong>48+ hours</strong> before: no fee (subject to availability).
+          </li>
+          <li>
+            Reschedule requested <strong>less than 48 hours</strong> before:{" "}
+            the booking will either stay on the original date, or a fee may apply
+            depending on the case.
+          </li>
+          <li>
+            If the customer requests a change <strong>less than 24 hours</strong>{" "}
+            before the booking, a <strong>£20</strong> fee may be charged.
+          </li>
+        </ul>
 
-          <h3 style={{ marginTop: 16, marginBottom: 8 }}>2) Rescheduling (changing the date)</h3>
-          <ul style={{ marginTop: 0 }}>
-            <li>
-              You can change your booking date up to <strong>48 hours</strong> before the scheduled date at no cost
-              (subject to availability).
-            </li>
-            <li>
-              If you request a date change <strong>within 48 hours</strong> of the booking, either:
-              <ul style={{ marginTop: 6 }}>
-                <li>a <strong>£20</strong> fee may apply, or</li>
-                <li>the booking remains on the originally scheduled date.</li>
-              </ul>
-            </li>
-          </ul>
+        <div className="contact-note">
+          <strong>Note:</strong> Rescheduling is always subject to availability.
+          We will do our best to accommodate changes, but we cannot guarantee the
+          same day/time slot.
+        </div>
 
-          <h3 style={{ marginTop: 16, marginBottom: 8 }}>3) Service issues / complaints</h3>
-          <ul style={{ marginTop: 0 }}>
-            <li>
-              After the service is completed, you have <strong>48 hours</strong> to report a problem or complaint.
-            </li>
-            <li>
-              If a valid issue is reported within 48 hours, we will offer a{" "}
-              <strong>free second visit (re-clean)</strong> to fix/clean the areas that were not completed properly.
-            </li>
-            <li>
-              If you do not report the issue within the first <strong>48 hours</strong>, we do not issue refunds.
-            </li>
-            <li>
-              Refunds are not provided simply because a customer is unhappy; we must verify the issue and attempt to fix it first.
-            </li>
-          </ul>
+        <h3>4) Handyman & Oven Cleaning – Deposits</h3>
+        <p>
+          For Handyman and Oven Cleaning services, the amount paid online is
+          treated as a <strong>deposit</strong>.
+        </p>
+        <ul className="info-list">
+          <li>
+            After the booking, our team will contact the customer to confirm
+            details and requirements.
+          </li>
+          <li>
+            If the customer cancels <strong>within 24 hours</strong> of the
+            booking or cancels on the <strong>same day</strong>, the deposit may
+            be retained.
+          </li>
+          <li>
+            If the customer changes the booking date the day before, we will try
+            to accommodate it (subject to availability).
+          </li>
+        </ul>
 
-          <h3 style={{ marginTop: 16, marginBottom: 8 }}>4) End of Tenancy (EOT) specific rules</h3>
-          <ul style={{ marginTop: 0 }}>
-            <li>
-              The property must be <strong>empty</strong> and free from personal belongings during an EOT clean.
-            </li>
-            <li>
-              The customer can inspect the property <strong>after</strong> the service is completed, not during the clean.
-            </li>
-            <li>
-              The booking is for the <strong>whole job</strong>, not for a fixed number of hours. Our team may take the time needed to complete the work properly.
-            </li>
-          </ul>
+        <h3>5) Refund Processing Time</h3>
+        <p>
+          If a refund is approved, it will be processed back to the original
+          payment method. Refunds normally take between{" "}
+          <strong>5 and 15 working days</strong> to appear, depending on the bank
+          or card provider.
+        </p>
 
-          <h3 style={{ marginTop: 16, marginBottom: 8 }}>5) Handyman & Oven Cleaning deposits</h3>
-          <p style={{ marginTop: 0 }}>
-            For handyman and oven cleaning services, the amount paid at booking is treated as a{" "}
-            <strong>deposit to secure the slot</strong>. Our team may contact you to confirm details before the visit.
-          </p>
-          <ul style={{ marginTop: 0 }}>
-            <li>
-              If you cancel last-minute or within 24 hours, the deposit may be <strong>retained</strong>.
-            </li>
-            <li>
-              If you reschedule the day before, we will normally allow it (subject to availability).
-            </li>
-          </ul>
+        <h3>6) Service-specific conditions</h3>
+        <p>
+          Some services require certain conditions to be met (for example End of
+          Tenancy Cleaning requires an empty property). If those conditions are
+          not met, the team may not be able to complete the work as intended.
+        </p>
 
-          <h3 style={{ marginTop: 16, marginBottom: 8 }}>6) Refund processing time</h3>
-          <p style={{ marginTop: 0 }}>
-            If a refund is approved, it will be processed within <strong>5 to 15 working days</strong> depending on your bank/payment provider.
-          </p>
-
-          <h3 style={{ marginTop: 16, marginBottom: 8 }}>Contact</h3>
-          <p style={{ marginTop: 0 }}>
-            For cancellations, rescheduling or complaints, contact us as soon as possible:
-          </p>
-          <ul style={{ marginTop: 0 }}>
-            <li>
-              <strong>Phone:</strong> <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
-            </li>
-            <li>
-              <strong>WhatsApp:</strong>{" "}
-              <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
-                Message us on WhatsApp
-              </a>
-            </li>
-            <li>
-              <strong>Email:</strong> fastandcleanoffice@gmail.com
-            </li>
-          </ul>
+        <div style={{ marginTop: 22, textAlign: "center" }}>
+          <Link to="/" className="btn-outline">
+            Back to Home
+          </Link>
+          <span style={{ margin: "0 10px" }} />
+          <Link to="/quote?service=deep" className="btn-primary">
+            Get a Quote
+          </Link>
         </div>
       </div>
-
-      <div style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <Link to="/quote?service=deep" className="btn-primary">
-          Get Quote / Book
-        </Link>
-
-        <a className="btn-outline" href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
-          WhatsApp
-        </a>
-
-        <a className="btn-outline" href={`tel:${PHONE_TEL}`}>
-          Call {PHONE_DISPLAY}
-        </a>
-      </div>
-    </div>
+    </section>
   );
 }
