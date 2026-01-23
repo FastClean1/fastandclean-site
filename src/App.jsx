@@ -1,16 +1,18 @@
 import React from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
+/* MAIN PAGES */
 import Home from "./Home.jsx";
 import Quote from "./Quote.jsx";
 import Book from "./Book.jsx";
 import Success from "./Success.jsx";
 import Cancel from "./Cancel.jsx";
 
+/* INFO / POLICY PAGES */
 import RefundPolicy from "./RefundPolicy.jsx";
 import EOT from "./EOT.jsx";
-import Deep from "./Deep.jsx";
-import AfterBuilding from "./AfterBuilding.jsx";
+import DeepCleaning from "./DeepCleaning.jsx";
+import Afterbuilding from "./Afterbuilding.jsx";
 
 export default function App() {
   const navigate = useNavigate();
@@ -32,28 +34,28 @@ export default function App() {
             <select
               defaultValue=""
               onChange={(e) => {
-                const v = e.target.value;
-                if (!v) return;
+                const value = e.target.value;
+                if (!value) return;
 
-                // external link (WhatsApp)
-                if (v.startsWith("http")) {
-                  window.open(v, "_blank", "noopener,noreferrer");
+                // External link (WhatsApp)
+                if (value.startsWith("http")) {
+                  window.open(value, "_blank", "noopener,noreferrer");
                   e.target.value = "";
                   return;
                 }
 
-                // anchor
-                if (v.startsWith("#")) {
+                // Anchor
+                if (value.startsWith("#")) {
                   navigate("/");
                   setTimeout(() => {
-                    const el = document.querySelector(v);
+                    const el = document.querySelector(value);
                     if (el) el.scrollIntoView({ behavior: "smooth" });
                   }, 50);
                   e.target.value = "";
                   return;
                 }
 
-                navigate(v);
+                navigate(value);
                 e.target.value = "";
               }}
             >
@@ -63,11 +65,12 @@ export default function App() {
 
               <option value="/">Home</option>
               <option value="/quote?service=deep">Get a Quote</option>
-              <option value="/refund-policy">Refund Policy</option>
 
-              <option value="/deep-cleaning">Deep: What’s included</option>
-              <option value="/end-of-tenancy">EOT: What’s included</option>
-              <option value="/after-building">After Building: What’s included</option>
+              <option value="/deep-cleaning">Deep Cleaning – What’s included</option>
+              <option value="/end-of-tenancy">End of Tenancy – What’s included</option>
+              <option value="/after-building">After Building – What’s included</option>
+
+              <option value="/refund-policy">Refund Policy</option>
 
               <option value={WHATSAPP_LINK}>WhatsApp</option>
               <option value="#contact">Contact</option>
@@ -89,12 +92,12 @@ export default function App() {
           {/* INFO PAGES */}
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/end-of-tenancy" element={<EOT />} />
-          <Route path="/deep-cleaning" element={<Deep />} />
-          <Route path="/after-building" element={<AfterBuilding />} />
+          <Route path="/deep-cleaning" element={<DeepCleaning />} />
+          <Route path="/after-building" element={<Afterbuilding />} />
         </Routes>
       </main>
 
-      {/* ✅ FLOATING WHATSAPP BUTTON (ALL PAGES) */}
+      {/* FLOATING WHATSAPP BUTTON */}
       <a
         className="whatsapp-float"
         href={WHATSAPP_LINK}
