@@ -2,9 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  // ✅ IMPORTANT:
-  // - id must match Quote.jsx service keys: deep, eot, after, oven, handyman, test (optional)
-  // - cleaning services have info pages; oven/handyman go straight to quote
   const services = [
     {
       id: "deep",
@@ -13,7 +10,6 @@ export default function Home() {
         "A deep, detailed clean designed to remove ingrained dirt from your home.",
       priceFrom: "From £185 (Flat) / £260 (House)",
       infoLink: "/deep-cleaning",
-      type: "cleaning",
     },
     {
       id: "eot",
@@ -22,15 +18,14 @@ export default function Home() {
         "A full professional clean for empty properties when moving in or out.",
       priceFrom: "From £215 (Flat) / £290 (House)",
       infoLink: "/end-of-tenancy",
-      type: "cleaning",
     },
     {
       id: "after",
       name: "After Building Cleaning",
-      description: "Remove dust and residue after renovations or building work.",
+      description:
+        "Remove dust and residue after renovations or building work.",
       priceFrom: "From £219 (Flat) / £294 (House)",
       infoLink: "/after-building",
-      type: "cleaning",
     },
     {
       id: "oven",
@@ -38,26 +33,16 @@ export default function Home() {
       description:
         "Choose your oven type (single, double, range, Aga) and book instantly.",
       priceFrom: "From £55",
-      infoLink: null,
-      type: "extra",
+      infoLink: "/oven-cleaning",
     },
     {
       id: "handyman",
       name: "Handyman",
-      description: "Repairs, assembly, minor jobs. £20/hour. Choose 1–4 hours.",
+      description:
+        "Repairs, assembly, minor jobs. £20/hour. Deposit taken at booking.",
       priceFrom: "£20/hour",
-      infoLink: null,
-      type: "extra",
+      infoLink: "/handyman",
     },
-    // Optional internal testing card (uncomment if you want it visible)
-    // {
-    //   id: "test",
-    //   name: "Test Service (£1)",
-    //   description: "Internal test to validate booking + Stripe + email flow.",
-    //   priceFrom: "£1",
-    //   infoLink: null,
-    //   type: "test",
-    // },
   ];
 
   return (
@@ -92,22 +77,22 @@ export default function Home() {
           <div className="hero-trust">
             <div className="trust-item">
               <strong>✓ Insured</strong>
-              Professional & reliable
+              <span>Professional & reliable</span>
             </div>
             <div className="trust-item">
               <strong>✓ Guaranteed</strong>
-              48h complaint window
+              <span>48h complaint window</span>
             </div>
             <div className="trust-item">
               <strong>✓ Local Team</strong>
-              Cambridge & London
+              <span>Cambridge & London</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="services-section">
+      <section id="services" className="services-section section">
         <div className="container">
           <h2 className="section-title">Our Services</h2>
           <p className="section-subtitle">
@@ -133,31 +118,9 @@ export default function Home() {
                   Get Quote
                 </Link>
 
-                {/* Only show “What’s included” where we actually have a page */}
-                {s.infoLink ? (
-                  <Link
-                    to={s.infoLink}
-                    style={{
-                      marginTop: 10,
-                      textAlign: "center",
-                      fontSize: 13,
-                      textDecoration: "underline",
-                    }}
-                  >
-                    What’s included
-                  </Link>
-                ) : (
-                  <div
-                    style={{
-                      marginTop: 10,
-                      textAlign: "center",
-                      fontSize: 13,
-                      color: "#6b7280",
-                    }}
-                  >
-                    Instant booking available
-                  </div>
-                )}
+                <Link to={s.infoLink} className="inline-link">
+                  What’s included
+                </Link>
               </div>
             ))}
           </div>
@@ -165,7 +128,7 @@ export default function Home() {
       </section>
 
       {/* REVIEWS */}
-      <section className="reviews-section">
+      <section className="reviews-section section">
         <div className="container">
           <h2 className="section-title">Customer Reviews</h2>
           <p className="section-subtitle">Real feedback from our customers.</p>
@@ -184,9 +147,8 @@ export default function Home() {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" className="contact-section">
+      <section id="contact" className="contact-section section">
         <div className="container contact-grid">
-          {/* LEFT */}
           <div className="contact-info">
             <h2 className="section-title">Contact Us</h2>
             <p className="section-subtitle">
@@ -209,47 +171,11 @@ export default function Home() {
               <strong>Need to change or cancel a booking?</strong>
               <br />
               Please read our{" "}
-              <Link to="/refund-policy" style={{ textDecoration: "underline" }}>
+              <Link to="/refund-policy" className="inline-link">
                 Refund & Cancellation Policy
               </Link>
               .
             </div>
-
-            <div style={{ marginTop: 14 }}>
-              <a
-                href="https://wa.me/447777174561"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline"
-              >
-                WhatsApp us now
-              </a>
-            </div>
-          </div>
-
-          {/* RIGHT (so the grid doesn’t look “empty/squeezed”) */}
-          <div className="contact-form">
-            <h3>Send Us a Message</h3>
-
-            <div className="form-row">
-              <input type="text" placeholder="Full Name" />
-              <input type="email" placeholder="Email Address" />
-            </div>
-
-            <div className="form-row">
-              <input type="tel" placeholder="Phone (optional)" />
-              <input type="text" placeholder="Postcode / Area (optional)" />
-            </div>
-
-            <textarea placeholder="Your message..." />
-
-            <button className="btn-primary full-width" type="button">
-              Send Message
-            </button>
-
-            <p className="form-disclaimer">
-              We reply as soon as possible. For urgent requests, use WhatsApp.
-            </p>
           </div>
         </div>
       </section>
