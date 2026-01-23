@@ -1,157 +1,256 @@
+// src/Home.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Home() {
+  const googleReviewUrl = "https://g.page/r/CdhuI-exB04dEAE/review";
+
   const services = [
     {
-      id: "deep",
-      name: "Deep Cleaning",
-      description:
-        "Deep, detailed cleaning for kitchens, bathrooms and living areas. Pricing based on property size.",
-      priceFrom: "From £185 (Flat) / £260 (House)",
+      title: "Deep Cleaning",
+      desc: "Deep, detailed cleaning for kitchens, bathrooms and living areas. Pricing based on property size.",
+      price: "From £185 (Flat) / £260 (House)",
+      to: "/quote?service=deep",
     },
     {
-      id: "eot",
-      name: "End of Tenancy Cleaning",
-      description:
-        "End of tenancy clean with clear pricing based on property size. Ideal for tenants, landlords & agencies.",
-      priceFrom: "From £215 (Flat) / £290 (House)",
+      title: "End of Tenancy Cleaning",
+      desc: "End of tenancy clean with clear pricing based on property size. Ideal for tenants, landlords & agencies.",
+      price: "From £215 (Flat) / £290 (House)",
+      to: "/quote?service=eot",
     },
     {
-      id: "after",
-      name: "After Building Cleaning",
-      description:
-        "Post-construction / after building clean. Remove dust and building residue with professional results.",
-      priceFrom: "From £219 (Flat) / £294 (House)",
+      title: "After Building Cleaning",
+      desc: "Post-construction / after building clean. Remove dust and building residue with professional results.",
+      price: "From £219 (Flat) / £294 (House)",
+      to: "/quote?service=after",
     },
     {
-      id: "oven",
-      name: "Oven Cleaning",
-      description:
-        "Choose your oven type (single, double, range, Aga) and book instantly. Pricing is fixed by oven type.",
-      priceFrom: "From £55",
+      title: "Oven Cleaning",
+      desc: "Choose your oven type (single, double, range, Aga) and book instantly. Pricing is fixed by oven type.",
+      price: "From £55",
+      to: "/quote?service=oven",
     },
     {
-      id: "handyman",
-      name: "Handyman",
-      description:
-        "Repairs, assembly, minor jobs. £20/hour. Choose 1–4 hours maximum.",
-      priceFrom: "£20/hour",
+      title: "Handyman",
+      desc: "Repairs, assembly, minor jobs. £20/hour. Choose 1–4 hours maximum.",
+      price: "£20/hour",
+      to: "/quote?service=handyman",
     },
     {
-      id: "test",
-      name: "Test Service (£1)",
-      description:
-        "Internal test to validate the full booking + Stripe flow end-to-end.",
-      priceFrom: "£1",
+      title: "Test Service (£1)",
+      desc: "Internal test to validate the full booking + Stripe flow end-to-end.",
+      price: "£1",
+      to: "/quote?service=test",
+    },
+  ];
+
+  const reviews = [
+    {
+      name: "Customer",
+      when: "Google Review",
+      stars: "★★★★★",
+      text: "Great service — fast, professional and very thorough. Would book again.",
+    },
+    {
+      name: "Customer",
+      when: "Google Review",
+      stars: "★★★★★",
+      text: "End of tenancy clean was perfect. Landlord was happy and deposit returned.",
+    },
+    {
+      name: "Customer",
+      when: "Google Review",
+      stars: "★★★★★",
+      text: "Very reliable team. Communication was clear and results were excellent.",
     },
   ];
 
   return (
-    <>
+    <main>
       {/* HERO */}
       <section className="hero">
-        <div className="container hero-content">
-          <h1 className="hero-title">Home Services</h1>
-          <p className="hero-subtitle">
-            Professional cleaning, oven cleaning and handyman services across Cambridge &amp; London.
-            Transparent pricing, easy booking.
-          </p>
+        <div className="container">
+          <div className="hero-content">
+            <div className="hero-kicker">Fast & Clean Ltd — Professional Cleaning Services</div>
 
-          <div className="hero-badges">
-            <span>✅ Licensed &amp; Insured</span>
-            <span>⭐ Satisfaction Guaranteed</span>
-          </div>
+            <h1 className="hero-title">Professional Cleaning, Done Properly</h1>
 
-          <div className="hero-actions">
-            <a href="#services" className="btn-primary">View Services</a>
-            <a href="#contact" className="btn-outline">Contact</a>
-          </div>
+            <p className="hero-subtitle">
+              Instant quotes. Simple booking. Trusted results for homes, end of tenancy, after building and oven
+              cleaning.
+            </p>
 
-          <div className="hero-stats">
-            <div><strong>500+</strong><span>Happy Customers</span></div>
-            <div><strong>24/7</strong><span>Support</span></div>
-            <div><strong>5★</strong><span>Average Rating</span></div>
+            <div className="hero-badges">
+              <span>✅ Insured & professional</span>
+              <span>✅ Transparent pricing</span>
+              <span>✅ Fast booking</span>
+            </div>
+
+            <div className="hero-actions">
+              <Link className="btn-primary" to="/quote?service=deep">
+                Get an Instant Quote
+              </Link>
+              <a className="btn-outline" href={googleReviewUrl} target="_blank" rel="noopener noreferrer">
+                ⭐ Leave a Google Review
+              </a>
+            </div>
+
+            <div className="hero-trust">
+              <div className="trust-item">
+                <strong>10+ years</strong>
+                Experience in cleaning
+              </div>
+              <div className="trust-item">
+                <strong>Cambridge & London</strong>
+                Coverage area
+              </div>
+              <div className="trust-item">
+                <strong>Instant pricing</strong>
+                No waiting for quotes
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="services-section">
+      <section className="services-section">
         <div className="container">
           <h2 className="section-title">Our Services</h2>
-          <p className="section-subtitle">
-            Choose a service to get an instant quote and continue to booking.
-          </p>
+          <p className="section-subtitle">Choose a service to get an instant quote and continue to booking.</p>
+
+          <div className="booking-banner">
+            Tip: If you already know what you need, pick a service below — you’ll see the price instantly.
+          </div>
 
           <div className="services-grid">
             {services.map((s) => (
-              <div className="service-card" key={s.id}>
+              <div className="service-card" key={s.title}>
                 <div className="service-body">
-                  <h3>{s.name}</h3>
-                  <p>{s.description}</p>
-                  <div className="service-meta">
-                    <span className="price">{s.priceFrom}</span>
+                  <h3>{s.title}</h3>
+                  <p>{s.desc}</p>
+
+                  <div className="service-meta" style={{ marginTop: 10 }}>
+                    <span className="price">{s.price}</span>
                   </div>
                 </div>
 
-                <Link
-                  to={`/quote?service=${encodeURIComponent(s.id)}`}
-                  className="btn-primary full-width"
-                >
-                  Book / Get Quote
-                </Link>
+                <div style={{ marginTop: 14 }}>
+                  <Link className="btn-primary full-width" to={s.to}>
+                    Book / Get Quote
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CONTACT */}
-      <section id="contact" className="contact-section">
-        <div className="container contact-grid">
-          <div className="contact-info">
-            <h2 className="section-title">Get In Touch</h2>
-            <p className="section-subtitle">
-              Ready to book or have questions? We’re here to help.
-            </p>
+      {/* REVIEWS */}
+      <section className="reviews-section">
+        <div className="container">
+          <h2 className="section-title">Reviews</h2>
+          <p className="section-subtitle">
+            Reviews build trust and help new customers feel confident booking.
+          </p>
 
-            <ul className="contact-list">
-              <li><strong>Phone:</strong> 07918 646714</li>
-              <li><strong>Email:</strong> fastandcleanoffice@gmail.com</li>
-              <li><strong>Service Areas:</strong> Cambridge, London &amp; nearby towns</li>
-            </ul>
-
-            <div className="testimonials">
-              <h3>What customers say</h3>
-              <p>“Super punctual and spotless results.”</p>
-              <p>“Great communication and fair prices.”</p>
-              <p>“Reliable team, will book again.”</p>
-            </div>
+          <div className="reviews-grid">
+            {reviews.map((r, idx) => (
+              <div className="review-card" key={idx}>
+                <div className="review-top">
+                  <div className="review-meta">
+                    <strong>{r.name}</strong>
+                    <span>{r.when}</span>
+                  </div>
+                  <div className="review-stars">{r.stars}</div>
+                </div>
+                <p className="review-text">{r.text}</p>
+              </div>
+            ))}
           </div>
 
-          <form
-            className="contact-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Message sent! We’ll get back to you shortly.");
-            }}
-          >
-            <h3>Send Us a Message</h3>
-
-            <div className="form-row">
-              <input required placeholder="Full Name" />
-              <input required type="email" placeholder="Email Address" />
-            </div>
-
-            <textarea required placeholder="Your message..." />
-
-            <button className="btn-primary full-width" type="submit">
-              Send Message
-            </button>
-          </form>
+          <div className="reviews-cta">
+            <a className="btn-primary" href={googleReviewUrl} target="_blank" rel="noopener noreferrer">
+              ⭐ Leave us a Google Review
+            </a>
+            <Link className="btn-outline" to="/quote?service=deep">
+              Get an Instant Quote
+            </Link>
+          </div>
         </div>
       </section>
-    </>
+
+      {/* CONTACT */}
+      <section className="contact-section">
+        <div className="container">
+          <div className="contact-grid">
+            <div className="contact-info">
+              <h2 className="section-title">Get In Touch</h2>
+              <p className="section-subtitle">
+                Ready to book or have questions? We’re here to help.
+              </p>
+
+              <ul className="contact-list">
+                <li>
+                  <strong>Email:</strong> fastandcleanoffice@gmail.com
+                </li>
+                <li>
+                  <strong>Phone:</strong> 07918 646714
+                </li>
+                <li>
+                  <strong>Coverage:</strong> Cambridge & London
+                </li>
+              </ul>
+
+              <div className="contact-note">
+                Want to help us? Leaving a Google review takes 30 seconds and makes a big difference.
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <a className="btn-outline" href={googleReviewUrl} target="_blank" rel="noopener noreferrer">
+                  ⭐ Leave a Google Review
+                </a>
+              </div>
+            </div>
+
+            <ContactForm />
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function ContactForm() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Se hai già una logica email/submit in un altro file, qui puoi collegarla.
+    alert("Message sent! (Connect this form to your email service if needed.)");
+  };
+
+  return (
+    <form className="contact-form" onSubmit={handleSubmit}>
+      <h3>Send Us a Message</h3>
+
+      <div className="form-row">
+        <input name="fullName" placeholder="Full Name" required />
+        <input name="email" type="email" placeholder="Email Address" required />
+      </div>
+
+      <div className="form-row">
+        <input name="phone" placeholder="Phone" />
+        <input name="postcode" placeholder="Postcode" />
+      </div>
+
+      <textarea name="message" placeholder="How can we help?" required />
+
+      <button className="btn-primary full-width" type="submit">
+        Send Message
+      </button>
+
+      <p className="form-disclaimer">
+        By submitting this form you agree to be contacted about your enquiry.
+      </p>
+    </form>
   );
 }
