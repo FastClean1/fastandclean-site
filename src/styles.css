@@ -1,6 +1,8 @@
 /* styles.css */
 
-/* ===== Base ===== */
+/* =========================================================
+   Base
+   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -27,7 +29,9 @@ main {
   min-height: 70vh;
 }
 
-/* ===== Layout ===== */
+/* =========================================================
+   Layout
+   ========================================================= */
 
 .container {
   max-width: 1200px;
@@ -35,7 +39,9 @@ main {
   padding: 0 24px;
 }
 
-/* ===== Header ===== */
+/* =========================================================
+   Header
+   ========================================================= */
 
 .site-header {
   position: sticky;
@@ -53,23 +59,32 @@ main {
 }
 
 .logo a {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 20px;
   color: #0b63ff;
+  letter-spacing: -0.02em;
 }
 
 .nav-menu select {
-  padding: 6px 10px;
+  padding: 7px 12px;
   border-radius: 999px;
   border: 1px solid #d0d7e2;
   font-size: 14px;
   background: #ffffff;
+  outline: none;
 }
 
-/* ===== Hero ===== */
+.nav-menu select:focus {
+  border-color: rgba(11, 99, 255, 0.55);
+  box-shadow: 0 0 0 4px rgba(11, 99, 255, 0.12);
+}
+
+/* =========================================================
+   Hero
+   ========================================================= */
 
 .hero {
-  padding: 48px 0 40px;
+  padding: 52px 0 42px;
   background: #f5f7fb;
 }
 
@@ -89,19 +104,19 @@ main {
 }
 
 .hero-title {
-  font-size: 40px;
-  font-weight: 800;
+  font-size: 42px;
+  font-weight: 900;
   margin: 0 0 10px;
   color: #111827;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .hero-subtitle {
-  max-width: 760px;
+  max-width: 820px;
   margin: 0 auto 16px;
   font-size: 16px;
   color: #4b5563;
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
 .hero-badges {
@@ -138,6 +153,7 @@ main {
   padding: 10px 14px;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
   min-width: 160px;
+  border: 1px solid rgba(15, 23, 42, 0.04);
 }
 
 .trust-item strong {
@@ -147,7 +163,9 @@ main {
   margin-bottom: 2px;
 }
 
-/* ===== Buttons ===== */
+/* =========================================================
+   Buttons
+   ========================================================= */
 
 .btn-primary {
   display: inline-flex;
@@ -157,7 +175,7 @@ main {
   border-radius: 999px;
   background: #0b63ff;
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
   border: none;
   cursor: pointer;
@@ -179,7 +197,7 @@ main {
   border-radius: 999px;
   border: 1px solid #0b63ff;
   color: #0b63ff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.18s ease;
@@ -190,31 +208,64 @@ main {
   background: #e5efff;
 }
 
+.btn-primary:disabled,
+.btn-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .full-width {
   width: 100%;
 }
 
-/* ===== Sections ===== */
+/* Google review button (used in Home.jsx) */
+.google-review-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+  transition: all 0.2s ease;
+}
+
+.google-review-btn:hover {
+  background: #f9fafb;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   Sections
+   ========================================================= */
 
 .section-title {
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 900;
   text-align: center;
   margin: 0 0 6px;
   color: #111827;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .section-subtitle {
   text-align: center;
-  max-width: 760px;
+  max-width: 820px;
   margin: 0 auto 16px;
   font-size: 14px;
   color: #4b5563;
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
-/* ===== Services ===== */
+/* =========================================================
+   Services
+   ========================================================= */
 
 .services-section {
   padding: 24px 0 56px;
@@ -253,15 +304,16 @@ main {
 .service-body h3 {
   margin: 0 0 8px;
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 900;
   color: #111827;
+  letter-spacing: -0.01em;
 }
 
 .service-body p {
   margin: 0 0 12px;
   font-size: 13px;
   color: #4b5563;
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
 .service-meta {
@@ -273,11 +325,13 @@ main {
 }
 
 .service-meta .price {
-  font-weight: 800;
+  font-weight: 900;
   color: #059669;
 }
 
-/* ===== Reviews ===== */
+/* =========================================================
+   Reviews
+   ========================================================= */
 
 .reviews-section {
   padding: 40px 0 56px;
@@ -316,6 +370,11 @@ main {
   white-space: nowrap;
 }
 
+.review-meta strong {
+  font-size: 13px;
+  color: #111827;
+}
+
 .review-meta span {
   display: block;
   margin-top: 2px;
@@ -327,7 +386,7 @@ main {
   margin: 0;
   font-size: 13px;
   color: #4b5563;
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
 .reviews-cta {
@@ -338,7 +397,9 @@ main {
   margin-top: 18px;
 }
 
-/* ===== Contact ===== */
+/* =========================================================
+   Contact
+   ========================================================= */
 
 .contact-section {
   padding: 40px 0 56px;
@@ -392,7 +453,7 @@ main {
 .contact-form h3 {
   margin: 0 0 14px;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 900;
   color: #111827;
 }
 
@@ -405,12 +466,13 @@ main {
 .contact-form input,
 .contact-form textarea {
   width: 100%;
-  padding: 9px 10px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
   border: 1px solid #d1d5db;
   font-size: 13px;
   font-family: inherit;
   outline: none;
+  background: #ffffff;
 }
 
 .contact-form input:focus,
@@ -421,7 +483,7 @@ main {
 
 .contact-form textarea {
   resize: vertical;
-  min-height: 90px;
+  min-height: 100px;
   margin-bottom: 10px;
 }
 
@@ -432,7 +494,88 @@ main {
   line-height: 1.4;
 }
 
-/* ===== Footer ===== */
+/* =========================================================
+   Booking / Quote / Success pages
+   ========================================================= */
+
+.booking-container {
+  max-width: 900px;
+  margin: 28px auto 56px;
+  padding: 0 24px;
+}
+
+.booking-title {
+  font-size: 30px;
+  font-weight: 900;
+  margin: 0 0 12px;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+/* Ensure your existing booking summary style looks good */
+.booking-summary {
+  background: #f5f7fb;
+  padding: 16px;
+  border-radius: 18px;
+  margin-top: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+/* Default form look on Book/Quote if using booking-form class */
+.booking-form {
+  margin-top: 14px;
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+}
+
+.booking-form label {
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  display: block;
+  color: #374151;
+}
+
+.booking-form input,
+.booking-form textarea,
+.booking-form select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 14px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  background: #ffffff;
+}
+
+.booking-form input:focus,
+.booking-form textarea:focus,
+.booking-form select:focus {
+  border-color: rgba(11, 99, 255, 0.55);
+  box-shadow: 0 0 0 4px rgba(11, 99, 255, 0.12);
+}
+
+.booking-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.booking-error {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
 
 .site-footer {
   padding: 14px 0 18px;
@@ -444,212 +587,16 @@ main {
 }
 
 /* =========================================================
-   Booking / Quote / Success (NEW)
+   Responsive
    ========================================================= */
 
-:root {
-  --bg: #f5f7fb;
-  --card: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
-  --border: rgba(15, 23, 42, 0.08);
-  --shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
-  --brand: #0b63ff;
-  --brand2: #084fc7;
-  --success: #059669;
-  --danger: #dc2626;
-}
-
-/* Page wrapper used by Quote/Book/Success */
-.booking-container {
-  max-width: 920px;
-  margin: 28px auto 56px;
-  padding: 0 24px;
-}
-
-.booking-title {
-  font-size: 34px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  margin: 0 0 10px;
-  color: var(--text);
-}
-
-.booking-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow: var(--shadow);
-  padding: 18px;
-}
-
-.banner {
-  margin: 12px 0 14px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  border: 1px solid rgba(11, 99, 255, 0.18);
-  background: #e8f2ff;
-  color: #1f2933;
-}
-
-.banner-danger {
-  border-color: rgba(220, 38, 38, 0.25);
-  background: rgba(220, 38, 38, 0.08);
-  color: #7f1d1d;
-}
-
-.banner-success {
-  border-color: rgba(5, 150, 105, 0.22);
-  background: rgba(5, 150, 105, 0.10);
-  color: #064e3b;
-}
-
-/* Quote summary card (Quote.jsx uses booking-summary already) */
-.booking-summary {
-  background: #f5f7fb;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
-}
-
-.booking-summary h2 {
-  margin: 0 0 10px;
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--text);
-}
-
-.booking-summary p {
-  margin: 6px 0;
-  font-size: 13px;
-  color: #374151;
-}
-
-/* Book form card */
-.booking-form {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow: var(--shadow);
-  padding: 18px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.col-span-2 {
-  grid-column: span 2;
-}
-
-.booking-form label {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  color: #374151;
-  margin: 2px 0 6px;
-}
-
-.booking-form input,
-.booking-form select,
-.booking-form textarea {
-  width: 100%;
-  padding: 11px 12px;
-  border-radius: 12px;
-  border: 1px solid #d1d5db;
-  font-size: 13px;
-  font-family: inherit;
-  outline: none;
-  background: #ffffff;
-}
-
-.booking-form input:focus,
-.booking-form select:focus,
-.booking-form textarea:focus {
-  border-color: rgba(11, 99, 255, 0.55);
-  box-shadow: 0 0 0 4px rgba(11, 99, 255, 0.12);
-}
-
-.booking-form textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-}
-
-.btn-muted {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  background: #ffffff;
-  color: #374151;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.btn-muted:hover {
-  background: #f5f7fb;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-  transform: translateY(-1px);
-}
-
-/* Success page details list */
-.summary-list {
-  margin: 10px 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 10px;
-}
-
-.summary-item {
-  background: #f5f7fb;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 14px;
-  padding: 12px 14px;
-}
-
-.summary-item strong {
-  display: block;
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 2px;
-}
-
-.summary-item span {
-  display: block;
-  font-size: 13px;
-  color: #111827;
-  font-weight: 700;
-}
-
-/* Prevent “stretched” full-width weirdness on buttons inside cards */
-.booking-container .btn-primary.full-width,
-.booking-container .btn-outline.full-width {
-  max-width: 520px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* ===== Responsive (extends your existing responsive) ===== */
-
 @media (max-width: 900px) {
+  .hero-title {
+    font-size: 34px;
+  }
+
   .booking-title {
-    font-size: 28px;
+    font-size: 26px;
   }
 }
 
@@ -678,16 +625,7 @@ main {
     flex-direction: column;
   }
 
-  /* Booking/Quote/Success */
   .booking-container {
     padding: 0 16px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .col-span-2 {
-    grid-column: auto;
   }
 }
