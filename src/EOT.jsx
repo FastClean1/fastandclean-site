@@ -1,96 +1,80 @@
-// src/EOT.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
 export default function EOT() {
-  const PHONE_DISPLAY = "07777174561";
-  const PHONE_TEL = "+447777174561";
-  const WHATSAPP_LINK = "https://wa.me/447777174561";
-
   return (
-    <div className="container" style={{ paddingTop: 28, paddingBottom: 56 }}>
-      <div style={{ marginBottom: 16 }}>
-        <Link to="/" style={{ textDecoration: "underline" }}>
-          ← Back to Home
-        </Link>
-      </div>
+    <section className="info-page">
+      <div className="container">
+        <h1 className="section-title">End of Tenancy Cleaning</h1>
 
-      <h1 className="section-title" style={{ textAlign: "left" }}>
-        End of Tenancy Cleaning — What’s included
-      </h1>
-      <p className="section-subtitle" style={{ textAlign: "left", marginLeft: 0 }}>
-        The End of Tenancy cleaning service is designed to thoroughly clean an empty home for when a customer is
-        moving out of a rental property or moving in to a house they’ve bought.
-      </p>
+        <p className="section-subtitle">
+          Our End of Tenancy Cleaning service is designed to thoroughly clean an
+          <strong> empty property</strong> when a tenant is moving out or a new
+          owner is moving in.
+        </p>
 
-      <div className="booking-summary" style={{ background: "#ffffff" }}>
-        <h2 style={{ marginTop: 0 }}>✅ What’s included</h2>
-        <ul style={{ marginTop: 10, lineHeight: 1.7, color: "#374151" }}>
+        {/* IMPORTANT NOTICE */}
+        <div className="contact-note">
+          <strong>Important:</strong> This service is <strong>not charged by the hour</strong>.
+          It is a full job-based service.  
+          The cleaning team will take the time needed to complete the work properly.
+        </div>
+
+        <h3>What’s included</h3>
+        <ul className="info-list">
           <li>Clean reachable surfaces in all rooms</li>
-          <li>Clean cobwebs in all rooms</li>
-          <li>Clean skirting boards in all rooms</li>
-          <li>Clean all bins, pictures, glass and light fixtures and fittings</li>
+          <li>Remove cobwebs in all rooms</li>
+          <li>Clean skirting boards</li>
+          <li>Clean bins, pictures, glass and light fixtures</li>
           <li>Clean exterior of cupboards and appliances</li>
-          <li>Clean kitchen & bathrooms, including descaling</li>
-          <li>Vacuum & mop floors</li>
+          <li>Deep clean kitchen & bathrooms (including descaling)</li>
+          <li>Vacuum & mop all floors</li>
           <li>Clean inside windows</li>
           <li>Clean inside cupboards</li>
-          <li>Clean hard-to-reach areas (surfaces, floors & inside windows)</li>
+          <li>Clean hard-to-reach areas</li>
           <li>Clean grouting</li>
-          <li>Clean inside fridge/freezer</li>
-          <li>Clean inside other appliances (dishwasher, washing machine etc)</li>
+          <li>Clean inside fridge & freezer</li>
+          <li>Clean inside other appliances (dishwasher, washing machine, etc.)</li>
           <li>Clean extractor fan filter</li>
-          <li>Clean underneath light/movable furniture</li>
-        </ul>
-      </div>
-
-      <div className="booking-summary" style={{ background: "#ffffff", marginTop: 16 }}>
-        <h2 style={{ marginTop: 0 }}>➕ Optional extra services</h2>
-        <ul style={{ marginTop: 10, lineHeight: 1.7, color: "#374151" }}>
-          <li>Clean carpet & upholstery</li>
-          <li>Clean external areas (balcony, terrace, etc)</li>
-          <li>Clean oven</li>
-        </ul>
-      </div>
-
-      <div className="booking-summary" style={{ background: "#ffffff", marginTop: 16 }}>
-        <h2 style={{ marginTop: 0 }}>❌ Not included</h2>
-        <ul style={{ marginTop: 10, lineHeight: 1.7, color: "#374151" }}>
-          <li>De-cluttering</li>
-          <li>Rubbish removal</li>
-          <li>Cleaning of external windows</li>
-          <li>Moving heavy furniture to clean underneath</li>
-          <li>Wiping of walls and spot cleaning</li>
-          <li>Mould removal / heavy limescale removal</li>
+          <li>Clean underneath light or movable furniture</li>
         </ul>
 
-        <h3 style={{ marginTop: 18, marginBottom: 8 }}>Important notes</h3>
-        <ul style={{ marginTop: 0, lineHeight: 1.7, color: "#374151" }}>
-          <li>
-            The client must have already moved out. The property must be empty and free of personal belongings.
-          </li>
-          <li>
-            The client should not be present during the cleaning so the team can work efficiently and ensure they are the last to leave.
-          </li>
-          <li>
-            The customer can inspect the property only after the service is completed (not during the clean).
-          </li>
+        <h3>Optional additional services</h3>
+        <ul className="info-list">
+          <li>Carpet & upholstery cleaning</li>
+          <li>External areas (balcony, terrace, etc.)</li>
+          <li>Oven cleaning</li>
         </ul>
+
+        <h3>What is NOT included</h3>
+        <ul className="info-list">
+          <li>De-cluttering or rubbish removal</li>
+          <li>Cleaning external windows</li>
+          <li>Moving heavy furniture</li>
+          <li>Wiping or spot-cleaning walls</li>
+          <li>Mould or heavy limescale removal</li>
+        </ul>
+
+        <h3>Important conditions</h3>
+        <ul className="info-list">
+          <li>The property must be completely empty of personal belongings</li>
+          <li>The client must vacate the property before the cleaning starts</li>
+          <li>The client can inspect the property <strong>only after</strong> the service is completed</li>
+        </ul>
+
+        <div className="contact-note">
+          <strong>Complaints & Guarantee:</strong><br />
+          After the service is completed, the client has <strong>48 hours</strong> to report any issues.
+          We will arrange a <strong>free re-clean</strong> of the affected areas.
+          Refunds are not issued if no complaint is made within 48 hours.
+        </div>
+
+        <div style={{ marginTop: 24, textAlign: "center" }}>
+          <Link to="/quote?service=eot" className="btn-primary">
+            Get a Quote for End of Tenancy Cleaning
+          </Link>
+        </div>
       </div>
-
-      <div style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <Link to="/quote?service=eot" className="btn-primary">
-          Get Quote / Book EOT
-        </Link>
-
-        <a className="btn-outline" href={`tel:${PHONE_TEL}`}>
-          Call {PHONE_DISPLAY}
-        </a>
-
-        <a className="btn-outline" href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
-          WhatsApp
-        </a>
-      </div>
-    </div>
+    </section>
   );
 }
