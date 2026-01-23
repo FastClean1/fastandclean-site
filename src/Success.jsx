@@ -2,64 +2,62 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
 export default function Success() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  const sessionId = useMemo(() => params.get("session_id") || "-", [params]);
+  const sessionId = useMemo(() => {
+    return params.get("session_id") || params.get("sessionId") || "";
+  }, [params]);
 
   const [status, setStatus] = useState("Payment successful.");
-  const [booking, setBooking] = useState(null);
+  const [details, setDetails] = useState(null);
 
   useEffect(() => {
-    // 1) prendi bookingData dal localStorage
-    const raw = localStorage.getItem("bookingData");
-    const parsed = raw ? JSON.parse(raw) : null;
-    setBooking(parsed);
+    // 1) prendi booking dal localStorage
+    let booking = null;
+    try {
+      const raw = localStorage.getItem("bookingData");
+      booking = raw ? JSON.parse(raw) : null;
+    } catch {
+      booking = null;
+    }
 
-    if (!parsed) {
-      setStatus(
-        "Payment successful. (No booking data found in this browser session to email automatically.)"
-      );
+    setDetails(booking);
+
+    if (!booking) {
+      setStatus("Payment successful. (No booking data found in this browser session to email automatically.)");
       return;
     }
 
-    // evita doppio invio per lo stesso session_id
-    const already = localStorage.getItem("emailSentForSession");
-    if (already && already === sessionId) {
+    // evita doppio invio per la stessa session
+    const sentKey = `emailSentForSession:${sessionId || "no-session"}`;
+    if (localStorage.getItem(sentKey) === "1") {
       setStatus("Payment successful. Confirmation email already sent.");
       return;
     }
 
-    const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
-      setStatus(
-        "Payment successful. Missing EmailJS env vars (VITE_EMAILJS_SERVICE_ID / VITE_EMAILJS_TEMPLATE_ID / VITE_EMAILJS_PUBLIC_KEY)."
-      );
-      return;
-    }
-
-    // 2) template params coerenti col tuo template EmailJS
     const templateParams = {
-      email: parsed.email,                 // To Email = {{email}}
-      full_name: parsed.fullName,
-      phone: parsed.phone,
-      address: parsed.address,
-      service: parsed.serviceName,
-      booking_date: parsed.date,
-      booking_time: parsed.timeSlot,
-      notes: parsed.notes || "-",
-      price: parsed.price != null ? `£${parsed.price}` : "-",
+      to_email: booking.email,
+      customer_name: booking.fullName,
+      phone: booking.phone,
+      address: booking.address,
+      service_name: booking.serviceName,
+      date: booking.date,
+      time: booking.timeSlot,
+      price: booking.price,
+      notes: booking.notes || "-",
       session_id: sessionId || "-",
     };
 
     emailjs
       .send(SERVICE_ID, TEMPLATE_ID, templateParams, { publicKey: PUBLIC_KEY })
       .then(() => {
-        localStorage.setItem("emailSentForSession", sessionId);
+        localStorage.setItem(sentKey, "1");
         setStatus("Payment successful. Confirmation email sent to the customer.");
       })
       .catch((err) => {
@@ -71,41 +69,23 @@ export default function Success() {
   }, [sessionId]);
 
   return (
-    <div style={{ maxWidth: 900, margin: "30px auto", padding: 16 }}>
-      <h2>Payment successful</h2>
+    <div className="booking-container">
+      <h1 className="booking-title">Payment successful</h1>
 
-      <div
-        style={{
-          marginTop: 12,
-          background: "#f6f6f6",
-          padding: 16,
-          borderRadius: 12,
-        }}
-      >
-        <h3>Status</h3>
-        <div style={{ marginBottom: 12 }}>{status}</div>
+      <div className="booking-summary">
+        <h2 style={{ marginTop: 0 }}>Status</h2>
+        <p>{status}</p>
 
-        {booking ? (
-          <div style={{ borderTop: "1px solid #ddd", paddingTop: 12 }}>
-            <div><b>Service:</b> {booking.serviceName} (£{booking.price})</div>
-            <div><b>Date:</b> {booking.date} · <b>Time:</b> {booking.timeSlot}</div>
-            <div><b>Total:</b> £{booking.price}</div>
-            <div><b>Customer:</b> {booking.fullName} ({booking.email})</div>
-          </div>
-        ) : null}
+        {details && (
+          <>
+            <hr />
+            <p><strong>Service:</strong> {details.serviceName} (£{details.price})</p>
+            <p><strong>Date:</strong> {details.date} · <strong>Time:</strong> {details.timeSlot}</p>
+            <p><strong>Customer:</strong> {details.fullName} ({details.email})</p>
+          </>
+        )}
 
-        <button
-          onClick={() => navigate("/")}
-          style={{
-            marginTop: 14,
-            padding: "10px 16px",
-            borderRadius: 10,
-            border: "none",
-            background: "#1d4ed8",
-            color: "white",
-            cursor: "pointer",
-          }}
-        >
+        <button className="btn-primary" onClick={() => navigate("/")}>
           Back to Home
         </button>
       </div>
