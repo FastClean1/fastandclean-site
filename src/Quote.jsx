@@ -34,11 +34,19 @@ export default function Quote() {
     const testPrice = 1;
 
     const goBookTest = () => {
-      const q = new URLSearchParams({
+      const quoteData = {
         serviceKey: "test",
         serviceName: "Test Service (£1)",
-        price: String(testPrice),
+        price: testPrice,
+      };
+      localStorage.setItem("quoteData", JSON.stringify(quoteData));
+
+      const q = new URLSearchParams({
+        serviceKey: quoteData.serviceKey,
+        serviceName: quoteData.serviceName,
+        price: String(quoteData.price),
       });
+
       navigate(`/book?${q.toString()}`);
     };
 
@@ -71,6 +79,15 @@ export default function Quote() {
   const handymanTotal = handymanHours * HANDYMAN_RATE;
 
   const goBookHandyman = () => {
+    const quoteData = {
+      serviceKey: "handyman",
+      serviceName: "Handyman",
+      hours: handymanHours,
+      rate: HANDYMAN_RATE,
+      price: handymanTotal,
+    };
+    localStorage.setItem("quoteData", JSON.stringify(quoteData));
+
     const q = new URLSearchParams({
       serviceKey: "handyman",
       serviceName: "Handyman",
@@ -86,6 +103,15 @@ export default function Quote() {
   const ovenTotal = OVEN_PRICES[ovenType]?.price ?? 55;
 
   const goBookOven = () => {
+    const quoteData = {
+      serviceKey: "oven",
+      serviceName: "Oven Cleaning",
+      ovenType,
+      ovenLabel: OVEN_PRICES[ovenType]?.label || "Oven",
+      price: ovenTotal,
+    };
+    localStorage.setItem("quoteData", JSON.stringify(quoteData));
+
     const q = new URLSearchParams({
       serviceKey: "oven",
       serviceName: "Oven Cleaning",
@@ -115,6 +141,20 @@ export default function Quote() {
   const cleaningTotal = cleaningBasePrice + additionalCost;
 
   const goBookCleaning = () => {
+    const quoteData = {
+      serviceKey: cfg.id,
+      serviceName: cfg.name,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      extraLivingRooms,
+      additionalRooms,
+      basePrice: cleaningBasePrice,
+      additionalCost,
+      price: cleaningTotal,
+    };
+    localStorage.setItem("quoteData", JSON.stringify(quoteData));
+
     const q = new URLSearchParams({
       serviceKey: cfg.id,
       serviceName: cfg.name,
