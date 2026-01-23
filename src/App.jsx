@@ -1,5 +1,6 @@
+// src/App.jsx
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import Home from "./Home.jsx";
 import Quote from "./Quote.jsx";
@@ -8,27 +9,49 @@ import Success from "./Success.jsx";
 import Cancel from "./Cancel.jsx";
 
 export default function App() {
-  return (
-    <div className="app-shell">
-      <header className="site-header">
-        <div className="container header-row">
-          <Link to="/" className="brand">
-            Fast &amp; Clean Ltd
-          </Link>
+  const navigate = useNavigate();
 
-          <div className="header-right">
+  const PHONE_DISPLAY = "07777174561";
+  const PHONE_TEL = "+447777174561";
+  const WHATSAPP_LINK = "https://wa.me/447777174561";
+
+  return (
+    <>
+      <header className="site-header">
+        <div className="container header-inner">
+          <div className="logo">
+            <Link to="/">Fast & Clean Ltd</Link>
+          </div>
+
+          <div className="nav-menu">
             <select
-              className="menu-select"
-              defaultValue=""
               onChange={(e) => {
                 const v = e.target.value;
-                if (v) window.location.href = v;
+                if (!v) return;
+
+                if (v.startsWith("#")) {
+                  navigate("/");
+                  setTimeout(() => {
+                    const el = document.querySelector(v);
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 50);
+                } else {
+                  navigate(v);
+                }
+
+                // reset dropdown label back to placeholder
+                e.target.value = "";
               }}
+              defaultValue=""
             >
-              <option value="">Menu</option>
-              <option value="/#services">Services</option>
-              <option value="/#contact">Contact</option>
-              <option value="/quote?service=deep">Get a Quote</option>
+              <option value="" disabled>
+                Menu
+              </option>
+              <option value="/">Home</option>
+              <option value="/quote?service=deep">Get Quote</option>
+              <option value="/book">Book Online</option>
+              <option value={WHATSAPP_LINK}>WhatsApp</option>
+              <option value="#contact">Contact</option>
             </select>
           </div>
         </div>
@@ -46,9 +69,13 @@ export default function App() {
 
       <footer className="site-footer">
         <div className="container">
-          © {new Date().getFullYear()} Fast &amp; Clean Ltd — Based in Cambridge &amp; London.
+          © {new Date().getFullYear()} Fast & Clean Ltd — Based in Cambridge & London ·{" "}
+          <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a> ·{" "}
+          <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
+            WhatsApp
+          </a>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
