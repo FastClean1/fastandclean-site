@@ -15,6 +15,7 @@ export default function Home() {
       description:
         "Deep, detailed cleaning for kitchens, bathrooms and living areas. Pricing based on property size.",
       priceFrom: "From £185 (Flat) / £260 (House)",
+      includedLink: "/included-deep",
     },
     {
       id: "eot",
@@ -22,6 +23,7 @@ export default function Home() {
       description:
         "End of tenancy clean with clear pricing based on property size. Ideal for tenants, landlords & agencies.",
       priceFrom: "From £215 (Flat) / £290 (House)",
+      includedLink: "/included-eot",
     },
     {
       id: "after",
@@ -29,6 +31,7 @@ export default function Home() {
       description:
         "Post-construction / after building clean. Remove dust and building residue with professional results.",
       priceFrom: "From £219 (Flat) / £294 (House)",
+      includedLink: "/included-after",
     },
     {
       id: "oven",
@@ -36,6 +39,7 @@ export default function Home() {
       description:
         "Choose your oven type (single, double, range, Aga) and book instantly. Pricing is fixed by oven type.",
       priceFrom: "From £55",
+      includedLink: null,
     },
     {
       id: "handyman",
@@ -43,6 +47,7 @@ export default function Home() {
       description:
         "Repairs, assembly, minor jobs. £20/hour. Choose 1–4 hours maximum.",
       priceFrom: "£20/hour",
+      includedLink: null,
     },
     {
       id: "test",
@@ -50,6 +55,7 @@ export default function Home() {
       description:
         "Real service used to test the full booking + Stripe flow end-to-end.",
       priceFrom: "£1",
+      includedLink: null,
     },
   ];
 
@@ -129,9 +135,19 @@ export default function Home() {
                 <div className="service-body">
                   <h3>{s.name}</h3>
                   <p>{s.description}</p>
+
                   <div className="service-meta">
                     <span className="price">{s.priceFrom}</span>
                   </div>
+
+                  {/* ✅ What’s included link only for Deep/EOT/After */}
+                  {s.includedLink && (
+                    <div style={{ marginTop: 10, fontSize: 13 }}>
+                      <Link to={s.includedLink} style={{ textDecoration: "underline" }}>
+                        What’s included
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 <Link
@@ -208,10 +224,19 @@ export default function Home() {
               Fastest way to reach us: WhatsApp or phone.
             </div>
 
-            <div className="hero-actions" style={{ justifyContent: "flex-start", marginTop: 14 }}>
-              <a className="btn-primary" href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
+            <div
+              className="hero-actions"
+              style={{ justifyContent: "flex-start", marginTop: 14 }}
+            >
+              <a
+                className="btn-primary"
+                href={WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 WhatsApp Us
               </a>
+
               <a className="btn-outline" href={`tel:${PHONE_TEL}`}>
                 Call {PHONE_DISPLAY}
               </a>
