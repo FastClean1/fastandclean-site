@@ -77,23 +77,11 @@ main {
   text-align: center;
 }
 
-.hero-kicker {
-  margin: 0 auto 10px;
-  display: inline-flex;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #e8f2ff;
-  color: #1f2933;
-  font-size: 12px;
-  border: 1px solid rgba(11, 99, 255, 0.14);
-}
-
 .hero-title {
   font-size: 40px;
   font-weight: 800;
   margin: 0 0 10px;
   color: #111827;
-  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
@@ -101,50 +89,6 @@ main {
   margin: 0 auto 16px;
   font-size: 16px;
   color: #4b5563;
-  line-height: 1.45;
-}
-
-.hero-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 16px;
-  font-size: 13px;
-  color: #374151;
-}
-
-.hero-actions {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.hero-trust {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 6px;
-  font-size: 13px;
-  color: #6b7280;
-}
-
-.trust-item {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 10px 14px;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
-  min-width: 160px;
-}
-
-.trust-item strong {
-  display: block;
-  font-size: 14px;
-  color: #111827;
-  margin-bottom: 2px;
 }
 
 /* ===== Buttons ===== */
@@ -158,17 +102,8 @@ main {
   background: #0b63ff;
   color: #ffffff;
   font-weight: 600;
-  font-size: 14px;
   border: none;
   cursor: pointer;
-  transition: background 0.18s ease, transform 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.btn-primary:hover {
-  background: #084fc7;
-  box-shadow: 0 8px 18px rgba(11, 99, 255, 0.25);
-  transform: translateY(-1px);
 }
 
 .btn-outline {
@@ -180,14 +115,7 @@ main {
   border: 1px solid #0b63ff;
   color: #0b63ff;
   font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.18s ease;
   background: transparent;
-}
-
-.btn-outline:hover {
-  background: #e5efff;
 }
 
 .full-width {
@@ -200,37 +128,22 @@ main {
   font-size: 26px;
   font-weight: 800;
   text-align: center;
-  margin: 0 0 6px;
+  margin-bottom: 6px;
   color: #111827;
-  letter-spacing: -0.01em;
 }
 
 .section-subtitle {
   text-align: center;
   max-width: 760px;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
   font-size: 14px;
   color: #4b5563;
-  line-height: 1.45;
 }
 
 /* ===== Services ===== */
 
 .services-section {
   padding: 24px 0 56px;
-  background: #f5f7fb;
-}
-
-.booking-banner {
-  margin: 0 auto 24px;
-  max-width: 900px;
-  padding: 14px 18px;
-  border-radius: 14px;
-  background: #e8f2ff;
-  font-size: 13px;
-  color: #1f2933;
-  text-align: center;
-  border: 1px solid rgba(11, 99, 255, 0.14);
 }
 
 .services-grid {
@@ -242,123 +155,8 @@ main {
 .service-card {
   background: #ffffff;
   border-radius: 18px;
-  padding: 18px 18px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  padding: 18px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  border: 1px solid rgba(15, 23, 42, 0.04);
-}
-
-.service-body h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.service-body p {
-  margin: 0 0 12px;
-  font-size: 13px;
-  color: #4b5563;
-  line-height: 1.45;
-}
-
-.service-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.service-meta .price {
-  font-weight: 800;
-  color: #059669;
-}
-
-/* ===== Reviews ===== */
-
-.reviews-section {
-  padding: 40px 0 56px;
-  background: #f5f7fb;
-}
-
-.reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.review-card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
-  border: 1px solid rgba(15, 23, 42, 0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.review-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.review-stars {
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: #f59e0b;
-  white-space: nowrap;
-}
-
-.review-meta span {
-  display: block;
-  margin-top: 2px;
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.review-text {
-  margin: 0;
-  font-size: 13px;
-  color: #4b5563;
-  line-height: 1.45;
-}
-
-.reviews-cta {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-/* Google review button */
-.google-review-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-  padding: 12px 22px;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #111827;
-  font-weight: 700;
-  font-size: 14px;
-  border: 1px solid #d1d5db;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.06);
-  transition: all 0.2s ease;
-}
-
-.google-review-btn:hover {
-  background: #f9fafb;
-  transform: translateY(-1px);
 }
 
 /* ===== Contact ===== */
@@ -372,87 +170,6 @@ main {
   display: grid;
   grid-template-columns: 1.6fr 1.4fr;
   gap: 32px;
-  align-items: flex-start;
-}
-
-.contact-info .section-title,
-.contact-info .section-subtitle {
-  text-align: left;
-}
-
-.contact-list {
-  list-style: none;
-  padding: 0;
-  margin: 18px 0;
-  font-size: 14px;
-  color: #374151;
-}
-
-.contact-list li {
-  margin-bottom: 8px;
-}
-
-.contact-note {
-  margin-top: 12px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #f5f7fb;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  font-size: 13px;
-  color: #374151;
-}
-
-/* Contact form */
-
-.contact-form {
-  background: #f5f7fb;
-  padding: 20px 20px 22px;
-  border-radius: 18px;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
-  border: 1px solid rgba(15, 23, 42, 0.04);
-}
-
-.contact-form h3 {
-  margin: 0 0 14px;
-  font-size: 16px;
-  font-weight: 800;
-  color: #111827;
-}
-
-.form-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.contact-form input,
-.contact-form textarea {
-  width: 100%;
-  padding: 9px 10px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  font-size: 13px;
-  font-family: inherit;
-  outline: none;
-}
-
-.contact-form input:focus,
-.contact-form textarea:focus {
-  border-color: rgba(11, 99, 255, 0.5);
-  box-shadow: 0 0 0 4px rgba(11, 99, 255, 0.12);
-}
-
-.contact-form textarea {
-  resize: vertical;
-  min-height: 90px;
-  margin-bottom: 10px;
-}
-
-.form-disclaimer {
-  margin: 10px 0 0;
-  font-size: 11px;
-  color: #6b7280;
-  line-height: 1.4;
 }
 
 /* ===== Footer ===== */
@@ -466,36 +183,59 @@ main {
   text-align: center;
 }
 
-/* =========================================================
-   ✅ NEW: Floating WhatsApp Button (all pages)
-   ========================================================= */
+/* ======================================================
+   ✅ NEW — INFO / POLICY PAGES (Refund Policy, EOT, Deep)
+   ====================================================== */
 
-.whatsapp-float {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 9999;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 14px;
-  border-radius: 999px;
-  background: #25d366;
-  color: #ffffff;
-  font-weight: 800;
+.info-page {
+  padding: 48px 0 64px;
+  background: #ffffff;
+}
+
+.info-page .section-title {
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.info-page .section-subtitle {
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.info-page h3 {
+  margin-top: 28px;
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.info-page p {
   font-size: 14px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  color: #374151;
+  line-height: 1.55;
 }
 
-.whatsapp-float:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.22);
+.info-list {
+  margin: 12px 0 18px;
+  padding-left: 18px;
+  font-size: 14px;
+  color: #374151;
 }
 
-.whatsapp-float span {
-  margin-left: 8px;
+.info-list li {
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+
+.contact-note {
+  margin: 18px 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f5f7fb;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 13px;
+  color: #374151;
 }
 
 /* ===== Responsive ===== */
@@ -505,23 +245,11 @@ main {
     font-size: 30px;
   }
 
-  .trust-item {
-    min-width: 140px;
-  }
-
   .contact-grid {
     grid-template-columns: 1fr;
   }
 
-  .header-inner {
-    padding: 0 12px;
-  }
-
   .container {
     padding: 0 16px;
-  }
-
-  .form-row {
-    flex-direction: column;
   }
 }
