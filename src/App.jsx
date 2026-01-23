@@ -15,6 +15,10 @@ import AfterBuilding from "./AfterBuilding.jsx";
 export default function App() {
   const navigate = useNavigate();
 
+  const WHATSAPP_LINK = "https://wa.me/447777174561";
+  const PHONE_DISPLAY = "07777174561";
+  const PHONE_TEL = "+447777174561";
+
   return (
     <>
       {/* HEADER */}
@@ -28,15 +32,45 @@ export default function App() {
             <select
               defaultValue=""
               onChange={(e) => {
-                const value = e.target.value;
-                if (!value) return;
-                navigate(value);
+                const v = e.target.value;
+                if (!v) return;
+
+                // external link (WhatsApp)
+                if (v.startsWith("http")) {
+                  window.open(v, "_blank", "noopener,noreferrer");
+                  e.target.value = "";
+                  return;
+                }
+
+                // anchor
+                if (v.startsWith("#")) {
+                  navigate("/");
+                  setTimeout(() => {
+                    const el = document.querySelector(v);
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 50);
+                  e.target.value = "";
+                  return;
+                }
+
+                navigate(v);
+                e.target.value = "";
               }}
             >
-              <option value="" disabled>Menu</option>
+              <option value="" disabled>
+                Menu
+              </option>
+
               <option value="/">Home</option>
               <option value="/quote?service=deep">Get a Quote</option>
               <option value="/refund-policy">Refund Policy</option>
+
+              <option value="/deep-cleaning">Deep: What’s included</option>
+              <option value="/end-of-tenancy">EOT: What’s included</option>
+              <option value="/after-building">After Building: What’s included</option>
+
+              <option value={WHATSAPP_LINK}>WhatsApp</option>
+              <option value="#contact">Contact</option>
             </select>
           </div>
         </div>
@@ -60,10 +94,23 @@ export default function App() {
         </Routes>
       </main>
 
+      {/* ✅ FLOATING WHATSAPP BUTTON (ALL PAGES) */}
+      <a
+        className="whatsapp-float"
+        href={WHATSAPP_LINK}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
+        title="Chat on WhatsApp"
+      >
+        💬 <span>WhatsApp</span>
+      </a>
+
       {/* FOOTER */}
       <footer className="site-footer">
         <div className="container">
-          © {new Date().getFullYear()} Fast & Clean Ltd — Cambridge & London
+          © {new Date().getFullYear()} Fast & Clean Ltd — Cambridge & London ·{" "}
+          <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
         </div>
       </footer>
     </>
