@@ -1,52 +1,61 @@
-import React, { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Book() {
-  const location = useLocation();
   const navigate = useNavigate();
-
-  // Booking data might arrive from Quote via location.state
-  const quote = location.state?.quote || null;
+  const [params] = useSearchParams();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [date, setDate] = useState("");
-  const [timeSlot, setTimeSlot] = useState("");
+  const [timeSlot, setTimeSlot] = useState("Morning: 9:00 AM – 2:00 PM");
   const [notes, setNotes] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
-  const serviceName = useMemo(() => {
-    return (
-      quote?.serviceName ||
-      quote?.service ||
-      quote?.title ||
-      "Cleaning Service"
-    );
-  }, [quote]);
+  // ✅ Quote: prima da querystring, se manca fallback da localStorage
+  const quote = useMemo(() => {
+    const serviceKey = params.get("serviceKey");
+    const serviceName = params.get("serviceName");
+    const price = params.get("price");
 
-  const price = useMemo(() => {
-    // prova a leggere vari formati
-    const p =
-      quote?.price ??
-      quote?.total ??
-      quote?.amount ??
-      quote?.finalPrice ??
-      0;
-
-    // se è stringa tipo "£120" => estrai numero
-    if (typeof p === "string") {
-      const num = Number(p.replace(/[^0-9.]/g, ""));
-      return Number.isFinite(num) ? num : 0;
+    if (serviceKey && serviceName && price) {
+      // prendi tutto ciò che è passato in query
+      const obj = {};
+      for (const [k, v] of params.entries()) obj[k] = v;
+      obj.price = Number(obj.price);
+      return obj;
     }
 
-    return Number.isFinite(p) ? Number(p) : 0;
+    // fallback: localStorage
+    try {
+      const raw = localStorage.getItem("quoteData");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, [params]);
+
+  // Se la quote arriva da querystring, la persistiamo (così Book non dipende dal flusso)
+  useEffect(() => {
+    if (quote) {
+      localStorage.setItem("quoteData", JSON.stringify(quote));
+    }
   }, [quote]);
 
-  async function handlePay(e) {
+  const canPay =
+    !!quote &&
+    fullName.trim() &&
+    email.trim() &&
+    phone.trim() &&
+    address.trim() &&
+    date.trim() &&
+    timeSlot.trim();
+
+  const onSubmit = async (e) => {
     e.preventDefault();
     setErrMsg("");
 
@@ -55,156 +64,126 @@ export default function Book() {
       return;
     }
 
-    if (!fullName || !email || !phone || !address || !date || !timeSlot) {
+    if (!canPay) {
       setErrMsg("Please fill all required fields.");
       return;
     }
 
+    const bookingData = {
+      // quote
+      serviceKey: quote.serviceKey || quote.servicekey || quote.service || "unknown",
+      serviceName: quote.serviceName || quote.servicename || quote.service || "Service",
+      price: Number(quote.price || 0),
+
+      // customer
+      fullName: fullName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      date: date.trim(),
+      timeSlot: timeSlot.trim(),
+      notes: (notes || "").trim(),
+
+      // extra
+      createdAt: new Date().toISOString(),
+    };
+
+    // ✅ salva PRIMA di Stripe
+    localStorage.setItem("bookingData", JSON.stringify(bookingData));
+
     setLoading(true);
-
     try {
-      const bookingData = {
-        fullName,
-        email,
-        phone,
-        address,
-        date,
-        timeSlot,
-        notes: notes || "-",
-        serviceName,
-        price,
-        // puoi aggiungere altri campi del quote se ti servono
-        quote: quote || {},
-      };
-
-      // ✅ SALVA PRIMA di andare su Stripe
-      localStorage.setItem("bookingData", JSON.stringify(bookingData));
-
       const res = await fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // ✅ la function deve ricevere "booking"
         body: JSON.stringify({ booking: bookingData }),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setErrMsg(data?.error || "Checkout session error.");
-        setLoading(false);
-        return;
+        throw new Error(data?.error || `Checkout error (${res.status})`);
       }
 
-      const checkoutUrl = data?.url || data?.checkoutUrl;
-      if (!checkoutUrl) {
-        setErrMsg("Checkout URL missing in response.");
-        setLoading(false);
-        return;
+      if (!data?.url) {
+        throw new Error("Missing Stripe checkout URL");
       }
 
-      window.location.href = checkoutUrl;
+      // ✅ redirect a Stripe
+      window.location.href = data.url;
     } catch (err) {
-      setErrMsg(err?.message || "Something went wrong.");
       setLoading(false);
+      setErrMsg(String(err?.message || err));
     }
-  }
+  };
 
   return (
-    <div style={{ maxWidth: 650, margin: "30px auto", padding: 16 }}>
-      <h2>Booking Details</h2>
+    <div className="booking-container">
+      <h1 className="booking-title">Booking Details</h1>
 
-      {!quote ? (
-        <div style={{ padding: 12, background: "#ffecec", borderRadius: 8 }}>
+      {!quote && (
+        <div
+          style={{
+            background: "#fee2e2",
+            border: "1px solid #fecaca",
+            padding: 12,
+            borderRadius: 8,
+            marginBottom: 12,
+            color: "#7f1d1d",
+          }}
+        >
           Missing quote data. Go back to Quote and try again.
-        </div>
-      ) : (
-        <div style={{ padding: 12, background: "#f6f6f6", borderRadius: 8 }}>
-          <b>Service:</b> {serviceName} <br />
-          <b>Price:</b> £{price}
         </div>
       )}
 
-      <form onSubmit={handlePay} style={{ marginTop: 16 }}>
+      {errMsg && (
+        <div
+          style={{
+            background: "#fff7ed",
+            border: "1px solid #fed7aa",
+            padding: 12,
+            borderRadius: 8,
+            marginBottom: 12,
+            color: "#9a3412",
+          }}
+        >
+          {errMsg}
+        </div>
+      )}
+
+      <form className="booking-form" onSubmit={onSubmit}>
         <label>Full name *</label>
-        <input
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-          required
-        />
+        <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
 
         <label>Email *</label>
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          type="email"
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-          required
-        />
+        <input value={email} onChange={(e) => setEmail(e.target.value)} />
 
         <label>Phone *</label>
-        <input
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-          required
-        />
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} />
 
         <label>Address *</label>
-        <input
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-          required
-        />
+        <input value={address} onChange={(e) => setAddress(e.target.value)} />
 
         <label>Date *</label>
         <input
+          placeholder="DD/MM/YYYY"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          placeholder="DD/MM/YYYY"
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-          required
         />
 
         <label>Time slot *</label>
-        <input
-          value={timeSlot}
-          onChange={(e) => setTimeSlot(e.target.value)}
-          placeholder="Morning: 9:00 AM – 2:00 PM"
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-          required
-        />
+        <input value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} />
 
         <label>Notes</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-          rows={4}
-        />
-
-        {errMsg ? (
-          <div style={{ color: "crimson", marginBottom: 10 }}>
-            {errMsg}
-          </div>
-        ) : null}
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
 
         <button
+          className="btn-primary full-width"
           type="submit"
-          disabled={loading || !quote}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 10,
-            border: "none",
-            background: "#1d4ed8",
-            color: "white",
-            fontSize: 16,
-            cursor: "pointer",
-          }}
+          disabled={!canPay || loading}
+          style={{ opacity: !canPay || loading ? 0.6 : 1 }}
         >
-          {loading ? "Redirecting..." : "Pay & Confirm"}
+          {loading ? "Redirecting to payment..." : "Pay & Confirm"}
         </button>
 
         <div style={{ marginTop: 10, fontSize: 14 }}>
