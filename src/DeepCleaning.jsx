@@ -1,81 +1,67 @@
-// src/DeepCleaning.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
 export default function DeepCleaning() {
-  const PHONE_DISPLAY = "07777174561";
-  const PHONE_TEL = "+447777174561";
-  const WHATSAPP_LINK = "https://wa.me/447777174561";
-
   return (
-    <div className="container" style={{ paddingTop: 28, paddingBottom: 56 }}>
-      <div style={{ marginBottom: 16 }}>
-        <Link to="/" style={{ textDecoration: "underline" }}>
-          ← Back to Home
-        </Link>
-      </div>
+    <section className="info-page">
+      <div className="container">
+        <h1 className="section-title">Deep Cleaning</h1>
 
-      <h1 className="section-title" style={{ textAlign: "left" }}>
-        Deep Cleaning — What’s included
-      </h1>
-      <p className="section-subtitle" style={{ textAlign: "left", marginLeft: 0 }}>
-        Deep cleaning is a thorough clean designed to remove deep, ingrained dirt
-        from a customer’s home.
-      </p>
+        <p className="section-subtitle">
+          Deep Cleaning is a thorough clean designed to remove deep, ingrained
+          dirt from a customer’s home. Ideal for seasonal resets, moving in,
+          or when your home needs extra attention beyond regular cleaning.
+        </p>
 
-      <div className="booking-summary" style={{ background: "#ffffff" }}>
-        <h2 style={{ marginTop: 0 }}>✅ What’s included</h2>
-        <ul style={{ marginTop: 10, lineHeight: 1.7, color: "#374151" }}>
+        <div className="contact-note">
+          <strong>Important:</strong> This service is priced per job based on the
+          size of the property. It is <strong>not charged by the hour</strong>.
+          Our team will take the time needed to complete the work properly.
+        </div>
+
+        <h3>What’s included</h3>
+        <ul className="info-list">
           <li>Clean reachable surfaces in all rooms</li>
           <li>Clean exterior of cupboards and appliances</li>
-          <li>Clean kitchen & bathrooms, including descaling</li>
+          <li>Deep clean kitchen & bathrooms (including descaling)</li>
           <li>Vacuum & mop floors</li>
-          <li>Clean underneath light/movable furniture</li>
+          <li>Clean underneath light or movable furniture</li>
           <li>Clean and disinfect the trash can</li>
           <li>Clean inside windows</li>
           <li>Wipe down door frames and switch plates</li>
         </ul>
-      </div>
 
-      <div className="booking-summary" style={{ background: "#ffffff", marginTop: 16 }}>
-        <h2 style={{ marginTop: 0 }}>➕ Optional extra services</h2>
-        <ul style={{ marginTop: 10, lineHeight: 1.7, color: "#374151" }}>
+        <h3>Optional additional services</h3>
+        <ul className="info-list">
           <li>Inside fridge/freezer (must be empty and defrosted)</li>
           <li>Carpet & upholstery cleaning</li>
-          <li>External areas (balcony, terrace, etc)</li>
+          <li>External areas (balcony, terrace, etc.)</li>
         </ul>
-      </div>
 
-      <div className="booking-summary" style={{ background: "#ffffff", marginTop: 16 }}>
-        <h2 style={{ marginTop: 0 }}>❌ Not included</h2>
-        <ul style={{ marginTop: 10, lineHeight: 1.7, color: "#374151" }}>
+        <h3>What is NOT included</h3>
+        <ul className="info-list">
           <li>De-cluttering</li>
-          <li>Tidy-up & washing dishes</li>
-          <li>Cleaning of inside cupboards</li>
-          <li>Moving heavy furniture to clean underneath</li>
-          <li>Wiping of walls and spot cleaning</li>
-          <li>Mould removal / heavy limescale removal</li>
+          <li>Tidy-up and washing dishes</li>
+          <li>Cleaning inside cupboards</li>
+          <li>Moving heavy furniture</li>
+          <li>Wiping or spot-cleaning walls</li>
+          <li>Mould removal or heavy limescale removal</li>
         </ul>
+
+        <div className="contact-note">
+          <strong>Complaints & Guarantee:</strong><br />
+          After the service is completed, the client has <strong>48 hours</strong>
+          to report any issue. We will arrange a <strong>free re-clean</strong>
+          of the affected areas. Refunds are not issued if no complaint is made
+          within 48 hours.
+        </div>
+
+        <div style={{ marginTop: 24, textAlign: "center" }}>
+          <Link to="/quote?service=deep" className="btn-primary">
+            Get a Quote for Deep Cleaning
+          </Link>
+        </div>
       </div>
-
-      <div style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <Link to="/quote?service=deep" className="btn-primary">
-          Get Quote / Book Deep Cleaning
-        </Link>
-
-        <a className="btn-outline" href={`tel:${PHONE_TEL}`}>
-          Call {PHONE_DISPLAY}
-        </a>
-
-        <a
-          className="btn-outline"
-          href={WHATSAPP_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          WhatsApp
-        </a>
-      </div>
-    </div>
+    </section>
   );
 }
