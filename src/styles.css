@@ -167,6 +167,7 @@ main {
   flex-wrap: wrap;
   gap: 12px;
   margin: 10px 0 18px;
+  align-items: center;
 }
 
 .hero-trust {
@@ -386,6 +387,12 @@ a.btn-outline {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Bottone dentro card: pieno e centrato (HOME) */
+.service-actions .btn-primary {
+  width: 100%;
+  justify-content: center;
 }
 
 /* Link "What's included" */
@@ -705,10 +712,12 @@ textarea {
 
 /* =========================
    Quote pages (FIX) - SENZA rompere Home
-   -> applico SOLO se NON è una sezione della Home
+   - centra titoli + contenuto
+   - crea padding su mobile (NO bordi)
+   - NON tocca la HERO / HOME buttons
 ========================= */
 
-/* Titolo e sottotitolo */
+/* Titolo e sottotitolo (quote pages: h1/p diretti dentro main) */
 main > h1 {
   max-width: var(--quote-max);
   margin: 26px auto 10px;
@@ -736,7 +745,7 @@ main > h3 {
   padding: 0 var(--quote-pad);
 }
 
-/* QUI è il fix: non tocco le section della Home */
+/* WRAPPER: tutto ciò che è figlio diretto di main MA NON è una section Home */
 main > form,
 main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page),
 main > div:not(.container) {
@@ -747,8 +756,10 @@ main > div:not(.container) {
   padding-right: var(--quote-pad);
 }
 
-/* label pulite */
-main label {
+/* label SOLO nelle pagine quote (escludo home sections) */
+main > form label,
+main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page) label,
+main > div:not(.container) label {
   display: block;
   font-size: 12px;
   font-weight: 800;
@@ -756,24 +767,32 @@ main label {
   margin: 12px 0 6px;
 }
 
-/* spaziatura campi */
-main select,
-main input,
-main textarea {
+/* spaziatura campi SOLO pagine quote */
+main > form select,
+main > form input,
+main > form textarea,
+main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page) select,
+main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page) input,
+main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page) textarea,
+main > div:not(.container) select,
+main > div:not(.container) input,
+main > div:not(.container) textarea {
   margin-bottom: 8px;
 }
 
-/* bottone pieno ma centrato */
-main button.full-width,
-main .btn-primary.full-width,
-main button,
-main a.btn-primary {
+/* bottoni SOLO pagine quote (QUESTO è il punto che ti rovinava la HOME prima) */
+main > form button,
+main > form .btn-primary,
+main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page) button,
+main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page) .btn-primary,
+main > div:not(.container) button,
+main > div:not(.container) .btn-primary {
   max-width: var(--quote-max);
   margin-left: auto;
   margin-right: auto;
 }
 
-/* back link */
+/* back link SOLO se è link diretto sotto main (quote pages) */
 main > a {
   max-width: var(--quote-max);
   margin: 10px auto 26px;
