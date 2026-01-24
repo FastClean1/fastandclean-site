@@ -47,12 +47,14 @@ export default function Home() {
 
   return (
     <>
-      {/* HERO */}
+      {/* ================= HERO ================= */}
       <section className="hero">
         <div className="container hero-content">
           <span className="hero-kicker">Cambridge & London</span>
 
-          <h1 className="hero-title">Professional Cleaning & Home Services</h1>
+          <h1 className="hero-title">
+            Professional Cleaning & Home Services
+          </h1>
 
           <p className="hero-subtitle">
             Transparent pricing. Easy booking. Trusted local professionals for
@@ -91,8 +93,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SERVICES */}
-      <section id="services" className="services-section section">
+      {/* ================= SERVICES ================= */}
+      <section id="services" className="services-section">
         <div className="container">
           <h2 className="section-title">Our Services</h2>
           <p className="section-subtitle">
@@ -111,27 +113,31 @@ export default function Home() {
                   </div>
                 </div>
 
-                <Link
-                  to={`/quote?service=${s.id}`}
-                  className="btn-primary full-width"
-                >
-                  Get Quote
-                </Link>
+                <div className="service-actions">
+                  <Link
+                    to={`/quote?service=${s.id}`}
+                    className="btn-primary"
+                  >
+                    Get Quote
+                  </Link>
 
-                <Link to={s.infoLink} className="inline-link">
-                  What’s included
-                </Link>
+                  <Link to={s.infoLink} className="included-link">
+                    What’s included
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* REVIEWS */}
-      <section className="reviews-section section">
+      {/* ================= REVIEWS ================= */}
+      <section className="reviews-section">
         <div className="container">
           <h2 className="section-title">Customer Reviews</h2>
-          <p className="section-subtitle">Real feedback from our customers.</p>
+          <p className="section-subtitle">
+            Real feedback from our customers.
+          </p>
 
           <div className="reviews-cta">
             <a
@@ -146,8 +152,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CONTACT */}
-      <section id="contact" className="contact-section section">
+      {/* ================= CONTACT ================= */}
+      <section id="contact" className="contact-section">
         <div className="container contact-grid">
           <div className="contact-info">
             <h2 className="section-title">Contact Us</h2>
@@ -171,7 +177,7 @@ export default function Home() {
               <strong>Need to change or cancel a booking?</strong>
               <br />
               Please read our{" "}
-              <Link to="/refund-policy" className="inline-link">
+              <Link to="/refund-policy" className="included-link">
                 Refund & Cancellation Policy
               </Link>
               .
