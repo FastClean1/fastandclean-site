@@ -2,7 +2,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import Header from "./Header";
 import Footer from "./Footer";
 
 import Home from "./Home";
@@ -18,8 +17,6 @@ import Afterbuilding from "./Afterbuilding";
 export default function App() {
   return (
     <>
-      <Header />
-
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -34,7 +31,7 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* ✅ WhatsApp floating button (global) */}
+      {/* WhatsApp floating button */}
       <div className="whatsapp-float">
         <a
           href="https://wa.me/447777174561"
