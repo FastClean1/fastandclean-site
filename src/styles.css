@@ -34,7 +34,7 @@ html {
 
   --container: 1100px;
 
-  /* quote pages (centra e non attaccare ai bordi) */
+  /* Quote pages spacing (mobile first) */
   --quote-max: 920px;
   --quote-pad: 16px;
 }
@@ -218,7 +218,7 @@ main {
 }
 
 /* =========================
-   Buttons
+   Buttons (IMPORTANT)
 ========================= */
 
 .btn-primary,
@@ -291,7 +291,7 @@ main {
   transform: translateY(0px);
 }
 
-/* usato SOLO quando vuoi un bottone largo */
+/* usato SOLO quando vuoi un bottone largo (es. Pay & Confirm) */
 .full-width {
   width: 100%;
 }
@@ -302,20 +302,13 @@ a.btn-outline {
   text-decoration: none;
 }
 
-/* link inline (home / policy / pages) */
-.inline-link,
-a.inline-link {
-  display: inline-flex;
-  justify-content: center;
-  font-size: 13px;
-  color: #374151;
+/* inline link (home + note) */
+.inline-link {
   text-decoration: underline;
   text-underline-offset: 3px;
   opacity: 0.9;
 }
-
-.inline-link:hover,
-a.inline-link:hover {
+.inline-link:hover {
   opacity: 1;
 }
 
@@ -388,15 +381,25 @@ a.inline-link:hover {
   color: var(--success);
 }
 
-/* home: bottone e link sotto */
-.service-card .btn-primary {
-  width: 100%;
-  justify-content: center;
+/* area bottoni card */
+.service-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.service-card .inline-link {
-  margin-top: 10px;
+/* Link "What's included" */
+a.included-link {
+  display: inline-flex;
   justify-content: center;
+  font-size: 13px;
+  color: #374151;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.9;
+}
+a.included-link:hover {
+  opacity: 1;
 }
 
 /* =========================
@@ -454,33 +457,6 @@ a.inline-link:hover {
   border-radius: var(--radius-md);
   padding: 14px;
   color: #374151;
-}
-
-/* =========================
-   Info pages (Afterbuilding / Deep / EOT info, etc.)
-   (quelli con className="info-page" e "info-list")
-========================= */
-
-.info-page {
-  padding: 26px 0 42px;
-}
-
-.info-page h1 {
-  text-align: center;
-}
-
-.info-page h3 {
-  margin: 18px 0 10px;
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--text);
-}
-
-.info-list {
-  margin: 0 0 12px;
-  padding-left: 18px;
-  color: #374151;
-  line-height: 1.65;
 }
 
 /* =========================
@@ -581,94 +557,6 @@ textarea {
 }
 
 /* =========================
-   IMPORTANT: Quote pages che NON usano .container
-   (Deep / EOT / After / Oven / Handyman quote)
-   -> centra tutto e non attaccare ai bordi
-========================= */
-
-/* Titolo + sottotitolo */
-main > h1 {
-  max-width: var(--quote-max);
-  margin: 26px auto 10px;
-  padding: 0 var(--quote-pad);
-  text-align: center;
-  font-size: 34px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
-
-main > p {
-  max-width: var(--quote-max);
-  margin: 0 auto 16px;
-  padding: 0 var(--quote-pad);
-  text-align: center;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-/* eventuali headings/summary come "Quote Summary" */
-main > h2,
-main > h3 {
-  max-width: var(--quote-max);
-  margin: 14px auto 10px;
-  padding: 0 var(--quote-pad);
-}
-
-/* blocco form/controlli e summary se sono diretti nel main */
-main > form,
-main > section,
-main > div {
-  max-width: var(--quote-max);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* padding “sicuro” per contenuti senza container */
-main > form,
-main > div,
-main > section {
-  padding-left: var(--quote-pad);
-  padding-right: var(--quote-pad);
-}
-
-/* label più pulite */
-main label {
-  display: block;
-  font-size: 12px;
-  font-weight: 800;
-  color: #374151;
-  margin: 12px 0 6px;
-}
-
-/* spaziatura tra righe (quando i campi sono uno sotto l’altro) */
-main select,
-main input,
-main textarea {
-  margin-bottom: 8px;
-}
-
-/* bottone “Continue to booking / Pay & Confirm” centrato e NON ai bordi */
-main button,
-main .btn-primary,
-main a.btn-primary {
-  max-width: var(--quote-max);
-}
-
-main button,
-main .btn-primary.full-width,
-main button.full-width {
-  width: 100%;
-}
-
-/* “Back to Home” (spostalo dal bordo e rendilo ordinato) */
-main > a {
-  max-width: var(--quote-max);
-  margin: 10px auto 26px;
-  padding: 0 var(--quote-pad);
-  display: block;
-}
-
-/* =========================
    Reviews
 ========================= */
 
@@ -761,35 +649,6 @@ main > a {
   text-underline-offset: 3px;
 }
 
-/* Contact form */
-.contact-form {
-  background: #f5f7fb;
-  padding: 20px 20px 22px;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-}
-
-.contact-form h3 {
-  margin: 0 0 14px;
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--text);
-}
-
-.form-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.form-disclaimer {
-  margin: 10px 0 0;
-  font-size: 11px;
-  color: var(--muted-2);
-  line-height: 1.4;
-}
-
 /* =========================
    WhatsApp floating button (visibile)
 ========================= */
@@ -845,6 +704,84 @@ main > a {
 }
 
 /* =========================
+   Quote pages (FIX) - SENZA rompere Home
+   -> applico SOLO se NON è una sezione della Home
+========================= */
+
+/* Titolo e sottotitolo */
+main > h1 {
+  max-width: var(--quote-max);
+  margin: 26px auto 10px;
+  padding: 0 var(--quote-pad);
+  text-align: center;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+main > p {
+  max-width: var(--quote-max);
+  margin: 0 auto 16px;
+  padding: 0 var(--quote-pad);
+  text-align: center;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* heading tipo "Quote Summary" */
+main > h2,
+main > h3 {
+  max-width: var(--quote-max);
+  margin: 14px auto 10px;
+  padding: 0 var(--quote-pad);
+}
+
+/* QUI è il fix: non tocco le section della Home */
+main > form,
+main > section:not(.hero):not(.services-section):not(.reviews-section):not(.contact-section):not(.page-section):not(.info-page),
+main > div:not(.container) {
+  max-width: var(--quote-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--quote-pad);
+  padding-right: var(--quote-pad);
+}
+
+/* label pulite */
+main label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: #374151;
+  margin: 12px 0 6px;
+}
+
+/* spaziatura campi */
+main select,
+main input,
+main textarea {
+  margin-bottom: 8px;
+}
+
+/* bottone pieno ma centrato */
+main button.full-width,
+main .btn-primary.full-width,
+main button,
+main a.btn-primary {
+  max-width: var(--quote-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* back link */
+main > a {
+  max-width: var(--quote-max);
+  margin: 10px auto 26px;
+  padding: 0 var(--quote-pad);
+  display: block;
+}
+
+/* =========================
    Responsive
 ========================= */
 
@@ -881,11 +818,6 @@ main > a {
 
   .form-grid {
     grid-template-columns: 1fr;
-  }
-
-  /* quote pages: padding sempre presente e pulito */
-  :root {
-    --quote-pad: 14px;
   }
 
   .whatsapp-float {
